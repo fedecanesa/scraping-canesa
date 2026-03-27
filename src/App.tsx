@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { Sidebar } from "@/components/Sidebar";
 import { RightPanel } from "@/components/RightPanel";
 import { ScraperView } from "@/components/ScraperView";
+import { Sidebar } from "@/components/Sidebar";
+import { useState } from "react";
 
-const API_BASE = "http://localhost:8000";
+const API_BASE =
+  "https://scraping-canesa-scraping-canesa.1jn0jx.easypanel.host";
 
 interface ProcessResult {
   final_email: string;
