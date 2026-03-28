@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { ChevronUp, Zap, Send, Bot, LogOut } from "lucide-react";
+import { Bot, ChevronUp, LogOut, Send, Zap } from "lucide-react";
+
 import { motion } from "framer-motion";
+import { useState } from "react";
 
 const navItems = [
   { id: "scraper", label: "Scraper Web", icon: Zap },
@@ -23,6 +24,7 @@ export function Sidebar({ activeItem, onNavigate }: SidebarProps) {
           <p className="text-sm font-bold text-white">DATAPATH</p>
           <p className="text-xs text-slate-400">SCRAPER</p>
         </div>
+
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="text-slate-400 hover:text-white"
@@ -38,6 +40,7 @@ export function Sidebar({ activeItem, onNavigate }: SidebarProps) {
         <nav className="flex flex-1 flex-col gap-1 px-2">
           {navItems.map((item) => {
             const isActive = activeItem === item.id;
+
             return (
               <motion.button
                 key={item.id}
@@ -45,7 +48,7 @@ export function Sidebar({ activeItem, onNavigate }: SidebarProps) {
                 onClick={() => onNavigate(item.id)}
                 className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
                   isActive
-                    ? "bg-amber-500/20 text-amber-300 font-medium border border-amber-500/25"
+                    ? "border border-amber-500/25 bg-amber-500/20 font-medium text-amber-300"
                     : "text-slate-400 hover:bg-slate-700/50 hover:text-slate-200"
                 }`}
               >
@@ -58,7 +61,7 @@ export function Sidebar({ activeItem, onNavigate }: SidebarProps) {
       )}
 
       <div className="mt-auto px-2 pb-4">
-        <button className="flex w-full items-center gap-2.5 rounded-lg bg-amber-500/20 border border-amber-500/25 px-3 py-2.5 text-sm text-amber-300 transition-colors hover:bg-amber-500/30">
+        <button className="flex w-full items-center gap-2.5 rounded-lg border border-amber-500/25 bg-amber-500/20 px-3 py-2.5 text-sm text-amber-300 transition-colors hover:bg-amber-500/30">
           <LogOut size={16} />
           Cerrar Sesion
         </button>

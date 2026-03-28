@@ -1,5 +1,5 @@
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface RightPanelProps {
   apiToken: string;
@@ -19,12 +19,13 @@ export function RightPanel({
   isLoading,
 }: RightPanelProps) {
   return (
-    <aside className="w-[260px] border-l border-border p-5 flex flex-col gap-6">
+    <aside className="flex w-[260px] flex-col gap-6 border-l border-border p-5">
       <div>
         <h3 className="text-base font-bold text-foreground">API Token</h3>
         <p className="mt-1 text-xs text-muted-foreground">
-          Ingresa tu API token para usar Scraper Web
+          Campo reservado para una futura autenticación del usuario.
         </p>
+
         <Input
           className="mt-2"
           placeholder="Ingresa tu API token"
@@ -32,9 +33,6 @@ export function RightPanel({
           value={apiToken}
           onChange={(e) => onApiTokenChange(e.target.value)}
         />
-        <p className="mt-1.5 text-xs text-muted-foreground">
-          Encuentra tu API token en tu panel de control
-        </p>
       </div>
 
       <div>
@@ -46,18 +44,18 @@ export function RightPanel({
           onChange={(e) => onHeadersChange(e.target.value)}
         />
         <p className="mt-1.5 text-xs text-muted-foreground">
-          Personaliza los headers de la solicitud HTTP
+          Campo visual para una futura personalización de requests.
         </p>
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Tu API token es confidencial. No lo compartas con nadie.
+        Todavía no estamos enviando estos valores al backend.
       </p>
 
       <Button
         onClick={onSubmit}
         disabled={isLoading}
-        className="mt-auto w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-md shadow-emerald-500/20"
+        className="mt-auto w-full bg-emerald-600 font-semibold text-white shadow-md shadow-emerald-500/20 hover:bg-emerald-500"
       >
         {isLoading ? "Procesando..." : "Enviar a Scraper Web"}
       </Button>
