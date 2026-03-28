@@ -13,21 +13,7 @@ import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-interface ProfileData {
-  business_summary: string;
-  pain_points: string[];
-  technology: string[];
-  opportunities: string[];
-  ideal_customer: string;
-}
-
-interface ProcessResult {
-  final_email: string;
-  profile_data: ProfileData | null;
-  target_url: string;
-  run_id: string | null;
-}
+import type { ProcessResult } from "@/types";
 
 interface ScraperViewProps {
   url: string;
@@ -83,23 +69,23 @@ function formatProfileData(profile: ProfileData): string {
   ].join("\n\n");
 }
 
-function StepCard({ label, status }: { label: string; status: string }) {
-  const styles = {
-    pending: "bg-white/70 border-indigo-100 text-indigo-400",
-    running: "bg-indigo-100 border-indigo-300 text-indigo-700",
-    completed: "bg-emerald-50 border-emerald-200 text-emerald-700",
-    failed: "bg-red-50 border-red-200 text-red-700",
-  };
+const STEP_STATUS_CONFIG = {
+  pending:   { dot: "bg-indigo-200",  card: "bg-white/70 border-indigo-100",  text: "text-indigo-400",  label: "Esperando" },
+  running:   { dot: "bg-indigo-500 animate-pulse", card: "bg-indigo-100 border-indigo-300", text: "text-indigo-700", label: "Ejecutando" },
+  completed: { dot: "bg-emerald-500", card: "bg-emerald-50 border-emerald-200", text: "text-emerald-700", label: "Completado" },
+  failed:    { dot: "bg-red-500",     card: "bg-red-50 border-red-200",        text: "text-red-700",     label: "Error" },
+} as const;
 
-  const className = styles[status as keyof typeof styles] || styles.pending;
+function StepCard({ label, status }: { label: string; status: string }) {
+  const s = STEP_STATUS_CONFIG[status as keyof typeof STEP_STATUS_CONFIG] ?? STEP_STATUS_CONFIG.pending;
 
   return (
-    <div
-      className={`flex-1 rounded-lg border px-3 py-2 text-center transition-colors ${className}`}
-    >
-      <p className="text-[10px] font-medium uppercase tracking-wide">Estado</p>
-      <p className="mt-0.5 text-xs font-semibold">{label}</p>
-      <p className="mt-1 text-[11px] capitalize">{status}</p>
+    <div className={`flex-1 rounded-lg border px-3 py-2.5 transition-colors ${s.card}`}>
+      <p className={`text-xs font-semibold ${s.text}`}>{label}</p>
+      <div className="mt-1.5 flex items-center gap-1.5">
+        <span className={`h-2 w-2 rounded-full ${s.dot}`} />
+        <span className={`text-[11px] ${s.text}`}>{s.label}</span>
+      </div>
     </div>
   );
 }

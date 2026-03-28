@@ -1,12 +1,10 @@
-import { Bot, ChevronUp, LogOut, Send, Zap } from "lucide-react";
-
+import { Bot, Send, Zap } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState } from "react";
 
-const navItems = [
-  { id: "scraper", label: "Scraper Web", icon: Zap },
-  { id: "conexion", label: "Envio de Conexion", icon: Send },
-  { id: "scrapers", label: "Scrapers", icon: Bot },
+const NAV_ITEMS = [
+  { id: "scraper", label: "Scraper Web", icon: Zap, enabled: true },
+  { id: "conexion", label: "Envío de Conexión", icon: Send, enabled: false },
+  { id: "scrapers", label: "Scrapers", icon: Bot, enabled: false },
 ];
 
 interface SidebarProps {
@@ -15,57 +13,52 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activeItem, onNavigate }: SidebarProps) {
-  const [collapsed, setCollapsed] = useState(false);
-
   return (
-    <aside className="flex w-[190px] flex-col border-r border-border bg-sidebar">
-      <div className="flex items-center justify-between px-4 py-4">
-        <div>
-          <p className="text-sm font-bold text-white">DATAPATH</p>
-          <p className="text-xs text-slate-400">SCRAPER</p>
-        </div>
-
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="text-slate-400 hover:text-white"
-        >
-          <ChevronUp
-            size={16}
-            className={`transition-transform ${collapsed ? "rotate-180" : ""}`}
-          />
-        </button>
+    <aside className="flex w-[190px] flex-shrink-0 flex-col border-r border-border bg-sidebar">
+      {/* Logo */}
+      <div className="px-4 py-4">
+        <p className="text-sm font-bold text-white">DATAPATH</p>
+        <p className="text-xs text-slate-400">SCRAPER</p>
       </div>
 
-      {!collapsed && (
-        <nav className="flex flex-1 flex-col gap-1 px-2">
-          {navItems.map((item) => {
-            const isActive = activeItem === item.id;
+      {/* Nav */}
+      <nav className="flex flex-1 flex-col gap-1 px-2">
+        {NAV_ITEMS.map((item) => {
+          const isActive = activeItem === item.id;
+          const isDisabled = !item.enabled;
 
+          if (isDisabled) {
             return (
-              <motion.button
+              <div
                 key={item.id}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => onNavigate(item.id)}
-                className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                  isActive
-                    ? "border border-amber-500/25 bg-amber-500/20 font-medium text-amber-300"
-                    : "text-slate-400 hover:bg-slate-700/50 hover:text-slate-200"
-                }`}
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-slate-600"
               >
                 <item.icon size={16} />
-                {item.label}
-              </motion.button>
+                <span className="flex-1">{item.label}</span>
+                <span className="rounded bg-slate-700/60 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-slate-400">
+                  Pronto
+                </span>
+              </div>
             );
-          })}
-        </nav>
-      )}
+          }
 
-      <div className="mt-auto px-2 pb-4">
-        <button className="flex w-full items-center gap-2.5 rounded-lg border border-amber-500/25 bg-amber-500/20 px-3 py-2.5 text-sm text-amber-300 transition-colors hover:bg-amber-500/30">
-          <LogOut size={16} />
-          Cerrar Sesion
-        </button>
-      </div>
+          return (
+            <motion.button
+              key={item.id}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => onNavigate(item.id)}
+              className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                isActive
+                  ? "border border-amber-500/25 bg-amber-500/20 font-medium text-amber-300"
+                  : "text-slate-400 hover:bg-slate-700/50 hover:text-slate-200"
+              }`}
+            >
+              <item.icon size={16} />
+              {item.label}
+            </motion.button>
+          );
+        })}
+      </nav>
     </aside>
   );
 }

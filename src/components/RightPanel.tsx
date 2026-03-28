@@ -1,64 +1,161 @@
-import { Button } from "@/components/ui/button";
+import { Info, Settings2, Zap } from "lucide-react";
+
 import { Input } from "@/components/ui/input";
+import type { PipelineConfig } from "@/types";
+
+const TONE_OPTIONS = [
+  { value: "profesional y cercano", label: "Profesional y cercano" },
+  { value: "formal", label: "Formal" },
+  { value: "casual y humano", label: "Casual y humano" },
+  { value: "técnico y directo", label: "Técnico y directo" },
+];
 
 interface RightPanelProps {
-  apiToken: string;
-  onApiTokenChange: (value: string) => void;
-  headers: string;
-  onHeadersChange: (value: string) => void;
-  onSubmit: () => void;
+  config: PipelineConfig;
+  onChange: (config: PipelineConfig) => void;
   isLoading: boolean;
 }
 
-export function RightPanel({
-  apiToken,
-  onApiTokenChange,
-  headers,
-  onHeadersChange,
-  onSubmit,
-  isLoading,
-}: RightPanelProps) {
+function Field({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <aside className="flex w-[260px] flex-col gap-6 border-l border-border p-5">
-      <div>
-        <h3 className="text-base font-bold text-foreground">API Token</h3>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Campo reservado para una futura autenticación del usuario.
-        </p>
+    <div className="flex flex-col gap-1.5">
+      <label className="text-xs font-semibold text-foreground">{label}</label>
+      {children}
+      {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
+    </div>
+  );
+}
 
-        <Input
-          className="mt-2"
-          placeholder="Ingresa tu API token"
-          type="password"
-          value={apiToken}
-          onChange={(e) => onApiTokenChange(e.target.value)}
-        />
+export function RightPanel({ config, onChange, isLoading }: RightPanelProps) {
+  const set = <K extends keyof PipelineConfig>(key: K, value: PipelineConfig[K]) =>
+    onChange({ ...config, [key]: value });
+
+  return (
+    <aside className="flex w-[260px] flex-shrink-0 flex-col gap-5 overflow-y-auto border-l border-border p-5">
+      {/* Header */}
+      <div className="flex items-center gap-2">
+        <Settings2 size={15} className="text-muted-foreground" />
+        <h3 className="text-sm font-bold text-foreground">Configuración</h3>
       </div>
 
-      <div>
-        <h3 className="text-base font-bold text-foreground">Headers</h3>
-        <Input
-          className="mt-2"
-          placeholder="Ej: User-Agent, Accept, etc"
-          value={headers}
-          onChange={(e) => onHeadersChange(e.target.value)}
-        />
-        <p className="mt-1.5 text-xs text-muted-foreground">
-          Campo visual para una futura personalización de requests.
-        </p>
-      </div>
-
-      <p className="text-xs text-muted-foreground">
-        Todavía no estamos enviando estos valores al backend.
-      </p>
-
-      <Button
-        onClick={onSubmit}
-        disabled={isLoading}
-        className="mt-auto w-full bg-emerald-600 font-semibold text-white shadow-md shadow-emerald-500/20 hover:bg-emerald-500"
+      {/* Servicio que vendés */}
+      <Field
+        label="Tu servicio"
+        hint="Se usa para personalizar el cold email."
       >
-        {isLoading ? "Procesando..." : "Enviar a Scraper Web"}
-      </Button>
+        <textarea
+          rows={3}
+          disabled={isLoading}
+          value={config.myServiceInfo}
+          onChange={(e) => set("myServiceInfo", e.target.value)}
+          placeholder="Ej: Automatización de procesos con IA para PYMEs"
+          className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
+        />
+      </Field>
+
+      {/* Tono */}
+      <Field label="Tono del email">
+        <select
+          disabled={isLoading}
+          value={config.companyTone}
+          onChange={(e) => set("companyTone", e.target.value)}
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
+        >
+          {TONE_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      </Field>
+
+      {/* Páginas a scrapear */}
+      <Field
+        label="Páginas a scrapear"
+        hint="Más páginas = análisis más rico, pero más lento."
+      >
+        <div className="flex items-center gap-2">
+          <input
+            type="range"
+            min={1}
+            max={10}
+            step={1}
+            disabled={isLoading}
+            value={config.maxCrawlPages}
+            onChange={(e) => set("maxCrawlPages", Number(e.target.value))}
+            className="flex-1 accent-indigo-500 disabled:opacity-50"
+          />
+          <span className="w-5 text-center text-xs font-semibold text-foreground">
+            {config.maxCrawlPages}
+          </span>
+        </div>
+      </Field>
+
+      {/* Modo rápido */}
+      <Field label="Modo rápido (skip cleaning)">
+        <label className="flex cursor-pointer items-center gap-2.5">
+          <div className="relative">
+            <input
+              type="checkbox"
+              className="sr-only"
+              disabled={isLoading}
+              checked={config.skipCleaning}
+              onChange={(e) => set("skipCleaning", e.target.checked)}
+            />
+            <div
+              className={`h-5 w-9 rounded-full transition-colors ${
+                config.skipCleaning ? "bg-indigo-500" : "bg-slate-200"
+              } ${isLoading ? "opacity-50" : ""}`}
+            />
+            <div
+              className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                config.skipCleaning ? "translate-x-4" : "translate-x-0.5"
+              }`}
+            />
+          </div>
+          <span className="text-xs text-muted-foreground">
+            {config.skipCleaning ? "Activo — omite limpieza LLM" : "Inactivo — limpia con LLM"}
+          </span>
+        </label>
+        <div className="mt-0.5 flex items-start gap-1 text-[11px] text-muted-foreground">
+          <Info size={11} className="mt-px flex-shrink-0" />
+          <span>
+            Activalo para evitar timeouts. Desactivalo para mejor calidad de análisis.
+          </span>
+        </div>
+      </Field>
+
+      <hr className="border-border" />
+
+      {/* API Key (opcional) */}
+      <Field
+        label="API Key (opcional)"
+        hint="Requerida si el backend tiene API_KEY configurado."
+      >
+        <Input
+          type="password"
+          disabled={isLoading}
+          placeholder="••••••••••••"
+          value={config.apiToken}
+          onChange={(e) => set("apiToken", e.target.value)}
+        />
+      </Field>
+
+      {/* Badge modo activo */}
+      <div className="mt-auto flex items-center gap-1.5 rounded-lg bg-indigo-50 px-3 py-2">
+        <Zap size={12} className="text-indigo-500" />
+        <span className="text-[11px] font-medium text-indigo-700">
+          {config.skipCleaning ? "Pipeline rápido activo" : "Pipeline completo activo"}
+        </span>
+      </div>
     </aside>
   );
 }
