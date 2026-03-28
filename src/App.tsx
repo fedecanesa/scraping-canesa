@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { BatchView } from "@/components/BatchView";
 import { HistoryView } from "@/components/HistoryView";
 import { RightPanel } from "@/components/RightPanel";
 import { ScraperView } from "@/components/ScraperView";
+import { SendView } from "@/components/SendView";
 import { Sidebar } from "@/components/Sidebar";
+import { API_BASE, buildHeaders, parseApiError } from "@/lib/api";
 import type {
   HistoryEntry,
   PipelineConfig,
@@ -16,26 +19,6 @@ import {
   HISTORY_MAX_ENTRIES,
   HISTORY_STORAGE_KEY,
 } from "@/types";
-
-const API_BASE =
-  import.meta.env.VITE_API_BASE ||
-  "https://scraping-canesa-scraping-canesa.1jn0jx.easypanel.host";
-
-function buildHeaders(apiToken: string): Record<string, string> {
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
-  if (apiToken.trim()) headers["X-Api-Key"] = apiToken.trim();
-  return headers;
-}
-
-function parseApiError(response: Response, body: { detail?: string } | null): string {
-  if (response.status === 429) {
-    return "Demasiadas solicitudes. Esperá un momento antes de volver a intentar.";
-  }
-  if (response.status === 401) {
-    return "API key inválida o requerida. Revisá la configuración.";
-  }
-  return body?.detail || `Error del servidor (${response.status})`;
-}
 
 function loadHistory(): HistoryEntry[] {
   try {
@@ -88,6 +71,14 @@ function App() {
     }
   }, []);
 
+  const addHistoryEntry = useCallback((entry: HistoryEntry) => {
+    setHistory((prev) => {
+      const updated = [entry, ...prev].slice(0, HISTORY_MAX_ENTRIES);
+      saveHistory(updated);
+      return updated;
+    });
+  }, []);
+
   const handleSSEMessage = useCallback(
     (runIdForEntry: string, targetUrl: string) => (e: MessageEvent) => {
       const data: ProcessStatusResponse = JSON.parse(e.data);
@@ -107,8 +98,7 @@ function App() {
         };
         setResult(processResult);
 
-        // Persist to history
-        const entry: HistoryEntry = {
+        addHistoryEntry({
           run_id: runIdForEntry,
           target_url: targetUrl,
           created_at: data.created_at,
@@ -122,11 +112,6 @@ function App() {
             maxCrawlPages: configRef.current.maxCrawlPages,
             skipCleaning: configRef.current.skipCleaning,
           },
-        };
-        setHistory((prev) => {
-          const updated = [entry, ...prev].slice(0, HISTORY_MAX_ENTRIES);
-          saveHistory(updated);
-          return updated;
         });
       }
 
@@ -135,7 +120,7 @@ function App() {
         setIsLoading(false);
         setErrorMessage(data.error || "El pipeline falló");
 
-        const entry: HistoryEntry = {
+        addHistoryEntry({
           run_id: runIdForEntry,
           target_url: targetUrl,
           created_at: data.created_at,
@@ -149,15 +134,10 @@ function App() {
             maxCrawlPages: configRef.current.maxCrawlPages,
             skipCleaning: configRef.current.skipCleaning,
           },
-        };
-        setHistory((prev) => {
-          const updated = [entry, ...prev].slice(0, HISTORY_MAX_ENTRIES);
-          saveHistory(updated);
-          return updated;
         });
       }
     },
-    [closeSSE],
+    [closeSSE, addHistoryEntry],
   );
 
   const handleSubmit = useCallback(async () => {
@@ -196,7 +176,6 @@ function App() {
       const data: ProcessStartResponse = await response.json();
       setRunId(data.run_id);
 
-      // Open SSE stream
       const es = new EventSource(`${API_BASE}/process/${data.run_id}/stream`);
       eventSourceRef.current = es;
 
@@ -238,6 +217,9 @@ function App() {
     return () => closeSSE();
   }, [closeSSE]);
 
+  // Batch view doesn't need the right panel (config already in panel)
+  const showRightPanel = activeNav !== "conexion";
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar activeItem={activeNav} onNavigate={setActiveNav} />
@@ -256,6 +238,10 @@ function App() {
         />
       )}
 
+      {activeNav === "batch" && (
+        <BatchView config={config} onSaveHistory={addHistoryEntry} />
+      )}
+
       {activeNav === "scrapers" && (
         <HistoryView
           history={history}
@@ -264,11 +250,21 @@ function App() {
         />
       )}
 
-      <RightPanel
-        config={config}
-        onChange={setConfig}
-        isLoading={isLoading}
-      />
+      {activeNav === "conexion" && (
+        <SendView
+          history={history}
+          lastEmail={result?.final_email ?? null}
+          lastUrl={result?.target_url ?? null}
+        />
+      )}
+
+      {showRightPanel && (
+        <RightPanel
+          config={config}
+          onChange={setConfig}
+          isLoading={isLoading}
+        />
+      )}
     </div>
   );
 }

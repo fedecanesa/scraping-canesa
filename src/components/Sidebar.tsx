@@ -1,10 +1,11 @@
-import { Bot, Send, Zap } from "lucide-react";
+import { Bot, Layers, Send, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 
 const NAV_ITEMS = [
-  { id: "scraper", label: "Scraper Web", icon: Zap, enabled: true },
-  { id: "scrapers", label: "Historial", icon: Bot, enabled: true },
-  { id: "conexion", label: "Envío de Conexión", icon: Send, enabled: false },
+  { id: "scraper",  label: "Scraper Web",   icon: Zap,    enabled: true },
+  { id: "batch",    label: "Batch",          icon: Layers, enabled: true },
+  { id: "scrapers", label: "Historial",      icon: Bot,    enabled: true },
+  { id: "conexion", label: "Envío de Email", icon: Send,   enabled: true },
 ];
 
 interface SidebarProps {
@@ -25,22 +26,6 @@ export function Sidebar({ activeItem, onNavigate }: SidebarProps) {
       <nav className="flex flex-1 flex-col gap-1 px-2">
         {NAV_ITEMS.map((item) => {
           const isActive = activeItem === item.id;
-          const isDisabled = !item.enabled;
-
-          if (isDisabled) {
-            return (
-              <div
-                key={item.id}
-                className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm text-slate-600"
-              >
-                <item.icon size={16} />
-                <span className="flex-1">{item.label}</span>
-                <span className="rounded bg-slate-700/60 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-slate-400">
-                  Pronto
-                </span>
-              </div>
-            );
-          }
 
           return (
             <motion.button

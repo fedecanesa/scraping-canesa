@@ -1,7 +1,9 @@
-import { Info, Settings2, Zap } from "lucide-react";
+import { BookmarkPlus, Info, Settings2, Trash2, Zap } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { Input } from "@/components/ui/input";
-import type { PipelineConfig } from "@/types";
+import type { PipelineConfig, Template } from "@/types";
+import { TEMPLATES_STORAGE_KEY } from "@/types";
 
 const TONE_OPTIONS = [
   { value: "profesional y cercano", label: "Profesional y cercano" },
@@ -34,9 +36,63 @@ function Field({
   );
 }
 
+function loadTemplates(): Template[] {
+  try {
+    const raw = localStorage.getItem(TEMPLATES_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as Template[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveTemplates(templates: Template[]): void {
+  try {
+    localStorage.setItem(TEMPLATES_STORAGE_KEY, JSON.stringify(templates));
+  } catch {
+    // quota exceeded — fail silently
+  }
+}
+
 export function RightPanel({ config, onChange, isLoading }: RightPanelProps) {
+  const [templates, setTemplates] = useState<Template[]>(loadTemplates);
+  const [newTemplateName, setNewTemplateName] = useState("");
+  const [showSaveInput, setShowSaveInput] = useState(false);
+
   const set = <K extends keyof PipelineConfig>(key: K, value: PipelineConfig[K]) =>
     onChange({ ...config, [key]: value });
+
+  // Keep templates in sync if another tab modifies localStorage
+  useEffect(() => {
+    const handle = () => setTemplates(loadTemplates());
+    window.addEventListener("storage", handle);
+    return () => window.removeEventListener("storage", handle);
+  }, []);
+
+  const handleSaveTemplate = () => {
+    const name = newTemplateName.trim();
+    if (!name) return;
+    const t: Template = {
+      id: Date.now().toString(),
+      name,
+      myServiceInfo: config.myServiceInfo,
+      companyTone: config.companyTone,
+    };
+    const updated = [t, ...templates].slice(0, 10);
+    setTemplates(updated);
+    saveTemplates(updated);
+    setNewTemplateName("");
+    setShowSaveInput(false);
+  };
+
+  const handleLoadTemplate = (t: Template) => {
+    onChange({ ...config, myServiceInfo: t.myServiceInfo, companyTone: t.companyTone });
+  };
+
+  const handleDeleteTemplate = (id: string) => {
+    const updated = templates.filter((t) => t.id !== id);
+    setTemplates(updated);
+    saveTemplates(updated);
+  };
 
   return (
     <aside className="flex w-[260px] flex-shrink-0 flex-col gap-5 overflow-y-auto border-l border-border p-5">
@@ -47,10 +103,7 @@ export function RightPanel({ config, onChange, isLoading }: RightPanelProps) {
       </div>
 
       {/* Servicio que vendés */}
-      <Field
-        label="Tu servicio"
-        hint="Se usa para personalizar el cold email."
-      >
+      <Field label="Tu servicio" hint="Se usa para personalizar el cold email.">
         <textarea
           rows={3}
           disabled={isLoading}
@@ -76,6 +129,75 @@ export function RightPanel({ config, onChange, isLoading }: RightPanelProps) {
           ))}
         </select>
       </Field>
+
+      {/* Templates */}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold text-foreground">Templates</span>
+          <button
+            disabled={isLoading}
+            onClick={() => setShowSaveInput((v) => !v)}
+            className="flex items-center gap-1 text-[11px] text-indigo-600 hover:text-indigo-800 disabled:opacity-40"
+          >
+            <BookmarkPlus size={12} />
+            Guardar actual
+          </button>
+        </div>
+
+        {showSaveInput && (
+          <div className="flex gap-1.5">
+            <input
+              autoFocus
+              value={newTemplateName}
+              onChange={(e) => setNewTemplateName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSaveTemplate();
+                if (e.key === "Escape") setShowSaveInput(false);
+              }}
+              placeholder="Nombre del template"
+              className="min-w-0 flex-1 rounded-md border border-input bg-background px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+            />
+            <button
+              onClick={handleSaveTemplate}
+              className="rounded-md bg-indigo-500 px-2.5 py-1.5 text-[11px] font-semibold text-white hover:bg-indigo-600"
+            >
+              OK
+            </button>
+          </div>
+        )}
+
+        {templates.length === 0 ? (
+          <p className="text-[11px] text-muted-foreground">
+            Guardá combinaciones de servicio + tono para reutilizarlas.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-1">
+            {templates.map((t) => (
+              <div
+                key={t.id}
+                className="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5"
+              >
+                <button
+                  onClick={() => handleLoadTemplate(t)}
+                  disabled={isLoading}
+                  className="min-w-0 flex-1 truncate text-left text-[11px] font-medium text-foreground hover:text-indigo-600 disabled:opacity-50"
+                  title={`${t.myServiceInfo} · ${t.companyTone}`}
+                >
+                  {t.name}
+                </button>
+                <button
+                  onClick={() => handleDeleteTemplate(t.id)}
+                  className="flex-shrink-0 text-muted-foreground hover:text-red-500"
+                >
+                  <Trash2 size={11} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <hr className="border-border" />
 
       {/* Páginas a scrapear */}
       <Field

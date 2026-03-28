@@ -271,12 +271,47 @@ function HistoryCard({
   );
 }
 
+function computeStats(history: HistoryEntry[]) {
+  const completed = history.filter((h) => h.status === "completed");
+  const failed = history.filter((h) => h.status === "failed");
+  const successRate = history.length ? Math.round((completed.length / history.length) * 100) : 0;
+
+  const durations = completed
+    .filter((h) => h.finished_at)
+    .map((h) => new Date(h.finished_at!).getTime() - new Date(h.created_at).getTime());
+  const avgMs = durations.length ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
+  const avgSec = Math.round(avgMs / 1000);
+
+  const domainCount: Record<string, number> = {};
+  for (const h of history) {
+    try {
+      const d = new URL(h.target_url).hostname;
+      domainCount[d] = (domainCount[d] || 0) + 1;
+    } catch {
+      // skip invalid URLs
+    }
+  }
+  const topDomain = Object.entries(domainCount).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+
+  return { total: history.length, completed: completed.length, failed: failed.length, successRate, avgSec, topDomain };
+}
+
+function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
+  return (
+    <div className="flex flex-col gap-0.5 rounded-xl border border-border bg-white px-4 py-3 shadow-sm">
+      <p className="text-[11px] font-medium text-muted-foreground">{label}</p>
+      <p className="text-xl font-bold text-foreground">{value}</p>
+      {sub && <p className="text-[11px] text-muted-foreground">{sub}</p>}
+    </div>
+  );
+}
+
 export function HistoryView({
   history,
   onRelaunch,
   onClearHistory,
 }: HistoryViewProps) {
-  const completedCount = history.filter((h) => h.status === "completed").length;
+  const stats = computeStats(history);
 
   return (
     <main className="flex-1 overflow-y-auto p-8">
@@ -291,7 +326,7 @@ export function HistoryView({
             <p className="mt-1 text-sm text-muted-foreground">
               {history.length === 0
                 ? "Todavía no hay runs guardados."
-                : `${history.length} run${history.length !== 1 ? "s" : ""} · ${completedCount} completado${completedCount !== 1 ? "s" : ""}`}
+                : `${stats.total} run${stats.total !== 1 ? "s" : ""} · ${stats.completed} completado${stats.completed !== 1 ? "s" : ""}`}
             </p>
           </div>
 
@@ -318,6 +353,27 @@ export function HistoryView({
             </div>
           )}
         </div>
+
+        {/* Stats */}
+        {history.length > 0 && (
+          <div className="mt-6 grid grid-cols-4 gap-3">
+            <StatCard label="Total runs" value={stats.total} />
+            <StatCard
+              label="Tasa de éxito"
+              value={`${stats.successRate}%`}
+              sub={`${stats.failed} fallido${stats.failed !== 1 ? "s" : ""}`}
+            />
+            <StatCard
+              label="Tiempo promedio"
+              value={stats.avgSec > 0 ? `${stats.avgSec}s` : "—"}
+              sub="solo completados"
+            />
+            <StatCard
+              label="Dominio top"
+              value={stats.topDomain ? stats.topDomain.replace(/^www\./, "") : "—"}
+            />
+          </div>
+        )}
 
         {/* Empty state */}
         {history.length === 0 && (

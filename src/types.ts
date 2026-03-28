@@ -75,3 +75,13 @@ export interface HistoryEntry {
 
 export const HISTORY_STORAGE_KEY = "scraper_history";
 export const HISTORY_MAX_ENTRIES = 50;
+
+/** Template de configuración del Copywriter guardado por el usuario. */
+export interface Template {
+  id: string;
+  name: string;
+  myServiceInfo: string;
+  companyTone: string;
+}
+
+export const TEMPLATES_STORAGE_KEY = "scraper_templates";
