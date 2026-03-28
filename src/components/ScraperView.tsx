@@ -4,6 +4,8 @@ import {
   Building2,
   Check,
   Copy,
+  Eye,
+  FileText,
   Globe,
   Info,
   Loader2,
@@ -25,6 +27,54 @@ interface ScraperViewProps {
   stepStatuses: Record<string, string>;
   runId: string | null;
   errorMessage: string | null;
+}
+
+function parseEmailParts(email: string): { subject: string | null; body: string } {
+  const lines = email.split("\n");
+  const subjectLine = lines.find((l) => /^asunto:/i.test(l.trim()));
+  const subject = subjectLine
+    ? subjectLine.replace(/^asunto:\s*/i, "").trim()
+    : null;
+  const body = subjectLine
+    ? lines.filter((l) => l !== subjectLine).join("\n").replace(/^\n+/, "")
+    : email;
+  return { subject, body };
+}
+
+function EmailPreview({ email, targetUrl }: { email: string; targetUrl: string }) {
+  const { subject, body } = parseEmailParts(email);
+  let domain = "";
+  try {
+    domain = new URL(targetUrl).hostname;
+  } catch {
+    domain = targetUrl;
+  }
+
+  return (
+    <div className="overflow-hidden rounded-lg border border-indigo-100">
+      <div className="space-y-1.5 border-b border-indigo-100 bg-indigo-50/60 px-4 py-3">
+        <div className="flex items-baseline gap-2 text-xs">
+          <span className="w-12 flex-shrink-0 font-semibold text-indigo-400">De:</span>
+          <span className="text-gray-600">Tu empresa &lt;hola@tuempresa.com&gt;</span>
+        </div>
+        <div className="flex items-baseline gap-2 text-xs">
+          <span className="w-12 flex-shrink-0 font-semibold text-indigo-400">Para:</span>
+          <span className="text-gray-600">contacto@{domain}</span>
+        </div>
+        <div className="flex items-baseline gap-2 text-xs">
+          <span className="w-12 flex-shrink-0 font-semibold text-indigo-400">Asunto:</span>
+          <span className="font-semibold text-gray-800">
+            {subject || "(sin asunto detectado)"}
+          </span>
+        </div>
+      </div>
+      <div className="p-4">
+        <div className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700">
+          {body}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function CopyButton({ text }: { text: string }) {
@@ -101,6 +151,8 @@ export function ScraperView({
   runId,
   errorMessage,
 }: ScraperViewProps) {
+  const [emailPreview, setEmailPreview] = useState(false);
+
   const profileAsText = useMemo(() => {
     if (!result?.profile_data) return "";
     return formatProfileData(result.profile_data);
@@ -285,13 +337,32 @@ export function ScraperView({
                     </div>
                   </div>
 
-                  <CopyButton text={result.final_email} />
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setEmailPreview((v) => !v)}
+                      className="flex items-center gap-1.5 rounded-md bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-700 transition-colors hover:bg-indigo-100 border border-indigo-200"
+                    >
+                      {emailPreview ? (
+                        <><FileText size={13} /> Texto</>
+                      ) : (
+                        <><Eye size={13} /> Vista previa</>
+                      )}
+                    </button>
+                    <CopyButton text={result.final_email} />
+                  </div>
                 </div>
 
                 <div className="p-5">
-                  <div className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700">
-                    {result.final_email}
-                  </div>
+                  {emailPreview ? (
+                    <EmailPreview
+                      email={result.final_email}
+                      targetUrl={result.target_url}
+                    />
+                  ) : (
+                    <div className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700">
+                      {result.final_email}
+                    </div>
+                  )}
                 </div>
               </motion.div>
 

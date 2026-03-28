@@ -55,3 +55,23 @@ export const DEFAULT_PIPELINE_CONFIG: PipelineConfig = {
   maxCrawlPages: 1,
   skipCleaning: true,
 };
+
+/** Una entrada del historial de runs guardada en localStorage. */
+export interface HistoryEntry {
+  run_id: string;
+  target_url: string;
+  created_at: string;
+  finished_at: string | null;
+  status: "completed" | "failed";
+  final_email: string | null;
+  profile_data: ProfileData | null;
+  config: {
+    myServiceInfo: string;
+    companyTone: string;
+    maxCrawlPages: number;
+    skipCleaning: boolean;
+  };
+}
+
+export const HISTORY_STORAGE_KEY = "scraper_history";
+export const HISTORY_MAX_ENTRIES = 50;

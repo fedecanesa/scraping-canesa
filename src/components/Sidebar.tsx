@@ -3,8 +3,8 @@ import { motion } from "framer-motion";
 
 const NAV_ITEMS = [
   { id: "scraper", label: "Scraper Web", icon: Zap, enabled: true },
+  { id: "scrapers", label: "Historial", icon: Bot, enabled: true },
   { id: "conexion", label: "Envío de Conexión", icon: Send, enabled: false },
-  { id: "scrapers", label: "Scrapers", icon: Bot, enabled: false },
 ];
 
 interface SidebarProps {
