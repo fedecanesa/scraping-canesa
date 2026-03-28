@@ -18,7 +18,6 @@ import type {
   ProcessStartResponse,
   ProcessStatusResponse,
 } from "@/types";
-import { HISTORY_MAX_ENTRIES } from "@/types";
 
 interface BatchViewProps {
   config: PipelineConfig;

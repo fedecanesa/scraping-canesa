@@ -1,11 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  Check,
-  ChevronDown,
-  ExternalLink,
-  Mail,
-  Send,
-} from "lucide-react";
+import { Check, ExternalLink } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
