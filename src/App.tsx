@@ -8,6 +8,7 @@ import { ProspectSidebar } from "@/components/ProspectSidebar";
 import { API_BASE, buildHeaders, parseApiError } from "@/lib/api";
 import { extractDomain, loadConfig, loadProspects, saveConfig, saveProspects } from "@/lib/storage";
 import type {
+  Objective,
   PipelineConfig,
   Prospect,
   ProcessStartResponse,
@@ -63,7 +64,7 @@ function App() {
   // ── Core analysis logic (shared by single + batch) ──────────────────────
 
   const analyzeProspect = useCallback(
-    (id: string, url: string, cfg: PipelineConfig): Promise<void> =>
+    (id: string, url: string, cfg: PipelineConfig, objective: Objective = "sell"): Promise<void> =>
       new Promise((resolve) => {
         updateProspect(id, { status: "analyzing", currentStep: "starting" });
 
@@ -76,6 +77,8 @@ function App() {
             skip_cleaning: cfg.skipCleaning,
             my_service_info: cfg.myServiceInfo || undefined,
             company_tone: cfg.companyTone || undefined,
+            objective,
+            user_type: cfg.userType || "other",
           }),
         })
           .then(async (res) => {
@@ -105,6 +108,7 @@ function App() {
                   status: "completed",
                   finishedAt: d.finished_at,
                   finalEmail: d.result?.final_email ?? null,
+                  messageVariants: d.result?.message_variants ?? null,
                   profileData: d.result?.profile_data ?? null,
                 });
                 resolve();
@@ -146,7 +150,7 @@ function App() {
   // ── Single analysis ──────────────────────────────────────────────────────
 
   const handleAnalyze = useCallback(
-    (url: string) => {
+    (url: string, objective: Objective = "sell") => {
       const id = Date.now().toString();
       const cfg = configRef.current;
       const newProspect: Prospect = {
@@ -158,25 +162,25 @@ function App() {
         createdAt: new Date().toISOString(),
         finishedAt: null,
         finalEmail: null,
+        messageVariants: null,
         profileData: null,
         error: null,
         currentStep: "starting",
         steps: { DataEngineer: "pending", Profiler: "pending", Copywriter: "pending" },
+        objective,
         config: {
           myServiceInfo: cfg.myServiceInfo,
           companyTone: cfg.companyTone,
           maxCrawlPages: cfg.maxCrawlPages,
           skipCleaning: cfg.skipCleaning,
+          userType: cfg.userType,
         },
       };
 
-      setProspects((prev) => {
-        const updated = [newProspect, ...prev];
-        return updated;
-      });
+      setProspects((prev) => [newProspect, ...prev]);
       setSelectedId(id);
 
-      analyzeProspect(id, url, cfg);
+      analyzeProspect(id, url, cfg, objective);
     },
     [analyzeProspect],
   );
@@ -184,8 +188,8 @@ function App() {
   // ── Re-analyze (from ProspectPanel) ─────────────────────────────────────
 
   const handleReanalyze = useCallback(
-    (url: string) => {
-      handleAnalyze(url);
+    (url: string, objective: Objective) => {
+      handleAnalyze(url, objective);
     },
     [handleAnalyze],
   );
@@ -195,6 +199,7 @@ function App() {
   const handleBatchImport = useCallback(
     async (urls: string[]) => {
       const cfg = configRef.current;
+      const objective: Objective = "sell";
       const newProspects: Prospect[] = urls.map((url, i) => ({
         id: `${Date.now()}-${i}`,
         runId: null,
@@ -204,24 +209,26 @@ function App() {
         createdAt: new Date().toISOString(),
         finishedAt: null,
         finalEmail: null,
+        messageVariants: null,
         profileData: null,
         error: null,
         currentStep: "",
         steps: {},
+        objective,
         config: {
           myServiceInfo: cfg.myServiceInfo,
           companyTone: cfg.companyTone,
           maxCrawlPages: cfg.maxCrawlPages,
           skipCleaning: cfg.skipCleaning,
+          userType: cfg.userType,
         },
       }));
 
       setProspects((prev) => [...newProspects, ...prev]);
       if (newProspects[0]) setSelectedId(newProspects[0].id);
 
-      // Process sequentially
       for (const p of newProspects) {
-        await analyzeProspect(p.id, p.url, cfg);
+        await analyzeProspect(p.id, p.url, cfg, objective);
       }
     },
     [analyzeProspect],

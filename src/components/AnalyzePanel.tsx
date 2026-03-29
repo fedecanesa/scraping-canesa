@@ -1,38 +1,46 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Bot, Globe, Mail } from "lucide-react";
+import { ArrowRight, Bot, Globe, Lightbulb, Mail, Target } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import type { Objective } from "@/types";
 
 interface AnalyzePanelProps {
-  onAnalyze: (url: string) => void;
+  onAnalyze: (url: string, objective: Objective) => void;
   onOpenConfig: () => void;
 }
+
+const OBJECTIVES: { id: Objective; label: string; desc: string; icon: React.ElementType }[] = [
+  { id: "sell", label: "Vender servicio", desc: "Generar reunión o respuesta", icon: Target },
+  { id: "partnership", label: "Partnership", desc: "Explorar alianza o colaboración", icon: Lightbulb },
+  { id: "recruit", label: "Reclutamiento", desc: "Contactar talento", icon: Bot },
+];
 
 const HOW_IT_WORKS = [
   {
     icon: Globe,
-    title: "Visitamos el sitio",
-    desc: "Extraemos contenido, estructura y señales del negocio",
+    title: "Analizamos el negocio",
+    desc: "Visitamos el sitio, extraemos contenido, estructura y señales comerciales",
     color: "bg-indigo-100 text-indigo-600",
   },
   {
     icon: Bot,
-    title: "Analizamos la empresa",
-    desc: "Identificamos dolores, tecnología y oportunidades",
+    title: "Inteligencia profunda",
+    desc: "Detectamos problemas reales, oportunidades y calculamos el score del lead",
     color: "bg-violet-100 text-violet-600",
   },
   {
     icon: Mail,
-    title: "Redactamos el email",
-    desc: "Generamos un cold email personalizado listo para enviar",
+    title: "3 mensajes personalizados",
+    desc: "Generamos variantes A/B hiper personalizadas listas para enviar",
     color: "bg-emerald-100 text-emerald-600",
   },
 ];
 
 export function AnalyzePanel({ onAnalyze, onOpenConfig }: AnalyzePanelProps) {
   const [url, setUrl] = useState("");
+  const [objective, setObjective] = useState<Objective>("sell");
 
   const handleSubmit = () => {
     const trimmed = url.trim();
@@ -41,7 +49,7 @@ export function AnalyzePanel({ onAnalyze, onOpenConfig }: AnalyzePanelProps) {
       trimmed.startsWith("http://") || trimmed.startsWith("https://")
         ? trimmed
         : `https://${trimmed}`;
-    onAnalyze(withScheme);
+    onAnalyze(withScheme, objective);
     setUrl("");
   };
 
@@ -51,19 +59,52 @@ export function AnalyzePanel({ onAnalyze, onOpenConfig }: AnalyzePanelProps) {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
-        className="w-full max-w-lg"
+        className="w-full max-w-xl"
       >
         {/* Hero */}
         <div className="mb-10 text-center">
           <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-600 shadow-lg shadow-indigo-600/25">
-            <Globe size={30} className="text-white" />
+            <Bot size={30} className="text-white" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">
             Analizá cualquier empresa
           </h1>
           <p className="mt-3 text-base text-slate-500">
-            Pegá la URL de un sitio web y en minutos tenés un cold email personalizado listo para enviar.
+            Pegá una URL y en minutos tenés inteligencia comercial profunda y mensajes hiper personalizados.
           </p>
+        </div>
+
+        {/* Objective selector */}
+        <div className="mb-5">
+          <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-slate-400">
+            Objetivo del contacto
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            {OBJECTIVES.map((obj) => (
+              <button
+                key={obj.id}
+                onClick={() => setObjective(obj.id)}
+                className={`flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-all ${
+                  objective === obj.id
+                    ? "border-indigo-300 bg-indigo-50 ring-1 ring-indigo-300"
+                    : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                }`}
+              >
+                <obj.icon
+                  size={16}
+                  className={objective === obj.id ? "text-indigo-600" : "text-slate-400"}
+                />
+                <p
+                  className={`text-xs font-semibold ${
+                    objective === obj.id ? "text-indigo-700" : "text-slate-600"
+                  }`}
+                >
+                  {obj.label}
+                </p>
+                <p className="text-[10px] leading-tight text-slate-400">{obj.desc}</p>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* URL input */}
@@ -91,7 +132,7 @@ export function AnalyzePanel({ onAnalyze, onOpenConfig }: AnalyzePanelProps) {
           onClick={onOpenConfig}
           className="mt-3 text-xs text-slate-400 underline-offset-2 transition-colors hover:text-slate-600 hover:underline"
         >
-          Configuración avanzada (servicio, tono, páginas)
+          Configuración avanzada (servicio, tono, páginas, API key)
         </button>
 
         {/* How it works */}

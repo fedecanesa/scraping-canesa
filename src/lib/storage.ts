@@ -1,4 +1,4 @@
-// lib/storage.ts — localStorage helpers
+// lib/storage.ts — localStorage helpers (DeepReacher)
 
 import type { PipelineConfig, Prospect, Template } from "@/types";
 import {

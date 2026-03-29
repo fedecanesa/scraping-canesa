@@ -28,6 +28,23 @@ function StatusDot({ status }: { status: ProspectStatus }) {
   return <span className="h-2 w-2 flex-shrink-0 rounded-full bg-red-400" />;
 }
 
+function ScoreBadge({ score }: { score: number }) {
+  const color =
+    score >= 80
+      ? "bg-emerald-500/20 text-emerald-400"
+      : score >= 60
+        ? "bg-yellow-500/20 text-yellow-400"
+        : score >= 40
+          ? "bg-orange-500/20 text-orange-400"
+          : "bg-red-500/20 text-red-400";
+
+  return (
+    <span className={`flex-shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold ${color}`}>
+      {score}
+    </span>
+  );
+}
+
 function ProspectItem({
   prospect,
   isSelected,
@@ -37,6 +54,8 @@ function ProspectItem({
   isSelected: boolean;
   onClick: () => void;
 }) {
+  const score = prospect.profileData?.lead_score;
+
   return (
     <motion.button
       layout
@@ -59,6 +78,9 @@ function ProspectItem({
         </p>
         <p className="text-[11px] text-slate-500">{relativeTime(prospect.createdAt)}</p>
       </div>
+      {score !== undefined && score > 0 && prospect.status === "completed" && (
+        <ScoreBadge score={score} />
+      )}
     </motion.button>
   );
 }
@@ -75,8 +97,8 @@ export function ProspectSidebar({
     <aside className="flex w-[220px] flex-shrink-0 flex-col border-r border-slate-800 bg-sidebar">
       {/* Logo */}
       <div className="px-4 pb-3 pt-4">
-        <p className="text-sm font-bold text-white">DATAPATH</p>
-        <p className="text-[11px] text-slate-500">Prospector de negocios</p>
+        <p className="text-sm font-bold text-white">DEEPREACHER</p>
+        <p className="text-[11px] text-slate-500">Inteligencia comercial con IA</p>
       </div>
 
       {/* New prospect button */}

@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { loadTemplates, saveTemplates } from "@/lib/storage";
-import type { PipelineConfig, Template } from "@/types";
+import type { PipelineConfig, Template, UserType } from "@/types";
+
+const USER_TYPE_OPTIONS: { value: UserType; label: string }[] = [
+  { value: "marketing_agency", label: "Agencia de marketing" },
+  { value: "dev_agency", label: "Agencia de desarrollo web" },
+  { value: "other", label: "Otro / Freelance" },
+];
 
 const TONE_OPTIONS = [
   { value: "profesional y cercano", label: "Profesional y cercano" },
@@ -131,6 +137,21 @@ export function ConfigDrawer({
                   placeholder="Ej: Automatización de procesos con IA para PYMEs"
                   className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300"
                 />
+              </Field>
+
+              {/* User type */}
+              <Field label="Tu tipo de negocio" hint="Afecta cómo se analizan las oportunidades.">
+                <select
+                  value={config.userType ?? "other"}
+                  onChange={(e) => set("userType", e.target.value as UserType)}
+                  className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                >
+                  {USER_TYPE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
               </Field>
 
               {/* Tone */}
