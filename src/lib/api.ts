@@ -10,6 +10,24 @@ export function buildHeaders(apiToken: string): Record<string, string> {
   return headers;
 }
 
+export async function searchBusinesses(
+  category: string,
+  city: string,
+  apiToken: string,
+  maxResults = 20,
+) {
+  const res = await fetch(`${API_BASE}/search`, {
+    method: "POST",
+    headers: buildHeaders(apiToken),
+    body: JSON.stringify({ category, city, max_results: maxResults }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(parseApiError(res, body));
+  }
+  return res.json();
+}
+
 export function parseApiError(
   response: Response,
   body: { detail?: string } | null,

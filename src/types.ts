@@ -122,6 +122,23 @@ export interface Prospect {
   };
 }
 
+// ─── Discovery (Google Places) ───────────────────────────────────────────────
+
+export interface PlaceResult {
+  place_id: string;
+  name: string;
+  website: string | null;
+  address: string | null;
+  rating: number | null;
+  rating_count: number | null;
+}
+
+export interface SearchResponse {
+  results: PlaceResult[];
+  total: number;
+  query: string;
+}
+
 // ─── Storage keys ─────────────────────────────────────────────────────────────
 
 export const PROSPECTS_STORAGE_KEY = "deepreacher_prospects_v1";

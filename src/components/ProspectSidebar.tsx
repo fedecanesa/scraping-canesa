@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Layers, Plus, Settings2 } from "lucide-react";
+import { Layers, Plus, Search, Settings2 } from "lucide-react";
 
 import { relativeTime } from "@/lib/storage";
 import type { Prospect, ProspectStatus } from "@/types";
@@ -7,8 +7,10 @@ import type { Prospect, ProspectStatus } from "@/types";
 interface ProspectSidebarProps {
   prospects: Prospect[];
   selectedId: string | null;
+  discoverOpen: boolean;
   onSelect: (id: string) => void;
   onNew: () => void;
+  onDiscover: () => void;
   onBatch: () => void;
   onConfig: () => void;
 }
@@ -88,8 +90,10 @@ function ProspectItem({
 export function ProspectSidebar({
   prospects,
   selectedId,
+  discoverOpen,
   onSelect,
   onNew,
+  onDiscover,
   onBatch,
   onConfig,
 }: ProspectSidebarProps) {
@@ -101,14 +105,29 @@ export function ProspectSidebar({
         <p className="text-[11px] text-slate-500">Inteligencia comercial con IA</p>
       </div>
 
-      {/* New prospect button */}
-      <div className="px-3 pb-3">
+      {/* Action buttons */}
+      <div className="flex flex-col gap-1.5 px-3 pb-3">
         <button
           onClick={onNew}
-          className="flex w-full items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-500"
+          className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+            !discoverOpen
+              ? "bg-indigo-600 text-white hover:bg-indigo-500"
+              : "border border-slate-700 text-slate-300 hover:bg-white/5"
+          }`}
         >
           <Plus size={15} />
           Nuevo análisis
+        </button>
+        <button
+          onClick={onDiscover}
+          className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+            discoverOpen
+              ? "bg-indigo-600 text-white hover:bg-indigo-500"
+              : "border border-slate-700 text-slate-300 hover:bg-white/5"
+          }`}
+        >
+          <Search size={15} />
+          Descubrir
         </button>
       </div>
 

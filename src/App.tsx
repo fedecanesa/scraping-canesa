@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AnalyzePanel } from "@/components/AnalyzePanel";
 import { BatchImportDrawer } from "@/components/BatchImportDrawer";
 import { ConfigDrawer } from "@/components/ConfigDrawer";
+import { DiscoverPanel } from "@/components/DiscoverPanel";
 import { ProspectPanel } from "@/components/ProspectPanel";
 import { ProspectSidebar } from "@/components/ProspectSidebar";
 import { API_BASE, buildHeaders, parseApiError } from "@/lib/api";
@@ -25,6 +26,7 @@ function App() {
   const [config, setConfig] = useState<PipelineConfig>(loadConfig);
   const [configOpen, setConfigOpen] = useState(false);
   const [batchOpen, setBatchOpen] = useState(false);
+  const [discoverOpen, setDiscoverOpen] = useState(false);
 
   // Keep a ref to config so SSE callbacks always have the current value
   const configRef = useRef(config);
@@ -197,9 +199,9 @@ function App() {
   // ── Batch import ─────────────────────────────────────────────────────────
 
   const handleBatchImport = useCallback(
-    async (urls: string[]) => {
+    async (urls: string[], batchObjective?: Objective) => {
       const cfg = configRef.current;
-      const objective: Objective = "sell";
+      const objective: Objective = batchObjective ?? "sell";
       const newProspects: Prospect[] = urls.map((url, i) => ({
         id: `${Date.now()}-${i}`,
         runId: null,
@@ -247,13 +249,23 @@ function App() {
       <ProspectSidebar
         prospects={prospects}
         selectedId={selectedId}
-        onSelect={setSelectedId}
-        onNew={() => setSelectedId(null)}
+        discoverOpen={discoverOpen}
+        onSelect={(id) => { setSelectedId(id); setDiscoverOpen(false); }}
+        onNew={() => { setSelectedId(null); setDiscoverOpen(false); }}
+        onDiscover={() => { setDiscoverOpen(true); setSelectedId(null); }}
         onBatch={() => setBatchOpen(true)}
         onConfig={() => setConfigOpen(true)}
       />
 
-      {selectedProspect ? (
+      {discoverOpen ? (
+        <DiscoverPanel
+          apiToken={config.apiToken}
+          onAnalyzeSelected={(urls, objective) => {
+            setDiscoverOpen(false);
+            handleBatchImport(urls, objective);
+          }}
+        />
+      ) : selectedProspect ? (
         <ProspectPanel
           prospect={selectedProspect}
           onReanalyze={handleReanalyze}
