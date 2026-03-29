@@ -10,13 +10,6 @@ export interface ProfileData {
   ideal_customer: string;
 }
 
-export interface ProcessResult {
-  final_email: string;
-  profile_data: ProfileData | null;
-  target_url: string;
-  run_id: string | null;
-}
-
 export interface ProcessStartResponse {
   run_id: string;
   status: "started";
@@ -39,7 +32,7 @@ export interface ProcessStatusResponse {
   error: string | null;
 }
 
-/** Configuración del pipeline expuesta al usuario desde el RightPanel. */
+/** Configuración del pipeline expuesta al usuario. */
 export interface PipelineConfig {
   apiToken: string;
   myServiceInfo: string;
@@ -56,15 +49,31 @@ export const DEFAULT_PIPELINE_CONFIG: PipelineConfig = {
   skipCleaning: true,
 };
 
-/** Una entrada del historial de runs guardada en localStorage. */
-export interface HistoryEntry {
-  run_id: string;
-  target_url: string;
-  created_at: string;
-  finished_at: string | null;
-  status: "completed" | "failed";
-  final_email: string | null;
-  profile_data: ProfileData | null;
+/** Template de configuración guardado por el usuario. */
+export interface Template {
+  id: string;
+  name: string;
+  myServiceInfo: string;
+  companyTone: string;
+}
+
+// ─── Prospect (unidad central de la nueva arquitectura) ───────────────────────
+
+export type ProspectStatus = "queued" | "analyzing" | "completed" | "failed";
+
+export interface Prospect {
+  id: string;           // ID estable del frontend (nunca cambia)
+  runId: string | null; // run_id del backend (se asigna tras POST /process)
+  url: string;
+  domain: string;
+  status: ProspectStatus;
+  createdAt: string;
+  finishedAt: string | null;
+  finalEmail: string | null;
+  profileData: ProfileData | null;
+  error: string | null;
+  currentStep: string;
+  steps: Record<string, string>;
   config: {
     myServiceInfo: string;
     companyTone: string;
@@ -73,15 +82,12 @@ export interface HistoryEntry {
   };
 }
 
-export const HISTORY_STORAGE_KEY = "scraper_history";
-export const HISTORY_MAX_ENTRIES = 50;
+// ─── Storage keys ─────────────────────────────────────────────────────────────
 
-/** Template de configuración del Copywriter guardado por el usuario. */
-export interface Template {
-  id: string;
-  name: string;
-  myServiceInfo: string;
-  companyTone: string;
-}
-
+export const PROSPECTS_STORAGE_KEY = "scraper_prospects_v2";
+export const PROSPECTS_MAX = 100;
+export const CONFIG_STORAGE_KEY = "scraper_config";
 export const TEMPLATES_STORAGE_KEY = "scraper_templates";
+
+// Legacy keys (kept for reference, no longer used)
+export const HISTORY_STORAGE_KEY = "scraper_history";
