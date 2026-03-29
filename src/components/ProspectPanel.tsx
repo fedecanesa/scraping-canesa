@@ -45,7 +45,6 @@ type EmailClient = "gmail" | "outlook" | "native";
 const OBJECTIVE_LABELS: Record<Objective, string> = {
   sell: "Vender servicio",
   partnership: "Partnership",
-  recruit: "Reclutamiento",
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

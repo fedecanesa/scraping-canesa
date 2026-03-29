@@ -14,7 +14,6 @@ interface AnalyzePanelProps {
 const OBJECTIVES: { id: Objective; label: string; desc: string; icon: React.ElementType }[] = [
   { id: "sell", label: "Vender servicio", desc: "Generar reunión o respuesta", icon: Target },
   { id: "partnership", label: "Partnership", desc: "Explorar alianza o colaboración", icon: Lightbulb },
-  { id: "recruit", label: "Reclutamiento", desc: "Contactar talento", icon: Bot },
 ];
 
 const HOW_IT_WORKS = [

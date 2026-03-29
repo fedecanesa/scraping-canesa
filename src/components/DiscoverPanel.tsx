@@ -37,7 +37,6 @@ const CATEGORY_SUGGESTIONS = [
 const OBJECTIVE_OPTIONS: { id: Objective; label: string }[] = [
   { id: "sell", label: "Vender servicio" },
   { id: "partnership", label: "Partnership" },
-  { id: "recruit", label: "Reclutamiento" },
 ];
 
 function RatingStars({ rating }: { rating: number }) {

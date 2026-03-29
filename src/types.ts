@@ -65,7 +65,7 @@ export interface ProcessStatusResponse {
 
 // ─── Configuración del pipeline ───────────────────────────────────────────────
 
-export type Objective = "sell" | "partnership" | "recruit";
+export type Objective = "sell" | "partnership";
 export type UserType = "marketing_agency" | "dev_agency" | "other";
 
 export interface PipelineConfig {
