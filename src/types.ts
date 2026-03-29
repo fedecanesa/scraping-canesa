@@ -26,6 +26,7 @@ export interface ProfileData {
   issues: Issue[];
   opportunities: Opportunity[];
   ideal_customer: string;
+  buying_signals: string[];
   lead_score: number;
   lead_score_reason: string;
 }

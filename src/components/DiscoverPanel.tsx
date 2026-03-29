@@ -4,11 +4,13 @@ import {
   Building2,
   CheckSquare,
   ExternalLink,
+  Handshake,
   Loader2,
   MapPin,
   Search,
   Square,
   Star,
+  Target,
   Zap,
 } from "lucide-react";
 import { useState } from "react";
@@ -23,20 +25,32 @@ interface DiscoverPanelProps {
   onAnalyzeSelected: (urls: string[], objective: Objective) => void;
 }
 
-const CATEGORY_SUGGESTIONS = [
-  "Agencias de marketing digital",
-  "Agencias de desarrollo web",
-  "Estudios de diseño gráfico",
-  "Consultoras de negocios",
-  "Empresas de e-commerce",
-  "Clínicas dentales",
-  "Estudios jurídicos",
-  "Gimnasios y centros fitness",
-];
+const CATEGORY_SUGGESTIONS: Record<Objective, string[]> = {
+  sell: [
+    "Agencias de marketing digital",
+    "Agencias de desarrollo web",
+    "Estudios de diseño gráfico",
+    "Empresas de e-commerce",
+    "Clínicas dentales",
+    "Estudios jurídicos",
+    "Gimnasios y centros fitness",
+    "Inmobiliarias",
+  ],
+  partnership: [
+    "Agencias de marketing digital",
+    "Agencias de desarrollo web",
+    "Consultoras de negocios",
+    "Estudios de diseño gráfico",
+    "Agencias de branding",
+    "Productoras de contenido",
+    "Consultoras de tecnología",
+    "Estudios de UX/UI",
+  ],
+};
 
-const OBJECTIVE_OPTIONS: { id: Objective; label: string }[] = [
-  { id: "sell", label: "Vender servicio" },
-  { id: "partnership", label: "Partnership" },
+const OBJECTIVE_OPTIONS: { id: Objective; label: string; desc: string; icon: React.ElementType }[] = [
+  { id: "sell", label: "Vender servicio", desc: "Detecta brechas y señales de compra", icon: Target },
+  { id: "partnership", label: "Partnership", desc: "Evalúa complementariedad y fit de alianza", icon: Handshake },
 ];
 
 function RatingStars({ rating }: { rating: number }) {
@@ -178,17 +192,40 @@ export function DiscoverPanel({ apiToken, onAnalyzeSelected }: DiscoverPanelProp
     <main className="flex flex-1 flex-col overflow-hidden bg-slate-50">
       {/* Header */}
       <div className="border-b border-slate-200 bg-white px-8 py-5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600">
-            <Search size={17} className="text-white" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600">
+              <Search size={17} className="text-white" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-slate-900">Descubrir prospects</h1>
+              <p className="text-xs text-slate-400">
+                Buscá empresas por categoría y ciudad, seleccioná y analizá en un click
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-lg font-bold text-slate-900">Descubrir prospects</h1>
-            <p className="text-xs text-slate-400">
-              Buscá empresas por categoría y ciudad, seleccioná las que te interesan y analizalas
-            </p>
+          {/* Objective selector en header */}
+          <div className="flex gap-2">
+            {OBJECTIVE_OPTIONS.map((opt) => (
+              <button
+                key={opt.id}
+                onClick={() => { setObjective(opt.id); setResults(null); setSelected(new Set()); }}
+                className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-all ${
+                  objective === opt.id
+                    ? "border-indigo-300 bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200"
+                    : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                }`}
+              >
+                <opt.icon size={13} />
+                {opt.label}
+              </button>
+            ))}
           </div>
         </div>
+        {/* Objetivo activo desc */}
+        <p className={`mt-3 rounded-lg px-3 py-2 text-xs ${objective === "sell" ? "bg-indigo-50 text-indigo-600" : "bg-violet-50 text-violet-600"}`}>
+          {OBJECTIVE_OPTIONS.find(o => o.id === objective)?.desc} — las sugerencias y el análisis se adaptan a este objetivo
+        </p>
       </div>
 
       <div className="flex-1 overflow-y-auto px-8 py-6">
@@ -235,10 +272,10 @@ export function DiscoverPanel({ apiToken, onAnalyzeSelected }: DiscoverPanelProp
             {!results && !loading && (
               <div className="mt-4">
                 <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                  Búsquedas frecuentes
+                  Sugerencias para {objective === "sell" ? "venta" : "partnership"}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  {CATEGORY_SUGGESTIONS.map((s) => (
+                  {CATEGORY_SUGGESTIONS[objective].map((s) => (
                     <button
                       key={s}
                       onClick={() => setCategory(s)}
@@ -327,24 +364,14 @@ export function DiscoverPanel({ apiToken, onAnalyzeSelected }: DiscoverPanelProp
                     <div className="flex items-center justify-between gap-4">
                       <div>
                         <p className="text-sm font-bold text-slate-900">
-                          {selected.size} empresa{selected.size !== 1 ? "s" : ""} seleccionada
-                          {selected.size !== 1 ? "s" : ""}
+                          {selected.size} empresa{selected.size !== 1 ? "s" : ""} listas para analizar
                         </p>
-                        <div className="mt-1.5 flex gap-1.5">
-                          {OBJECTIVE_OPTIONS.map((opt) => (
-                            <button
-                              key={opt.id}
-                              onClick={() => setObjective(opt.id)}
-                              className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors ${
-                                objective === opt.id
-                                  ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-                                  : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
-                              }`}
-                            >
-                              {opt.label}
-                            </button>
-                          ))}
-                        </div>
+                        <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-slate-400">
+                          {objective === "sell"
+                            ? <><Target size={11} className="text-indigo-400" /> Modo venta — detectará brechas y señales de compra</>
+                            : <><Handshake size={11} className="text-violet-400" /> Modo partnership — evaluará complementariedad y fit</>
+                          }
+                        </p>
                       </div>
                       <Button
                         onClick={handleAnalyze}
