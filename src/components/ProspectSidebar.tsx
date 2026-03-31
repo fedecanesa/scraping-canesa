@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Layers, Plus, Search, Settings2, Trash2, X } from "lucide-react";
+import { Layers, LogOut, Plus, Search, Settings2, Trash2, X } from "lucide-react";
 import { useState } from "react";
 
 import { relativeTime } from "@/lib/storage";
@@ -17,6 +17,8 @@ interface ProspectSidebarProps {
   onBatch: () => void;
   onConfig: () => void;
   onDelete: (id: string) => void;
+  onSignOut: () => void;
+  userEmail: string;
 }
 
 function StatusDot({ status }: { status: ProspectStatus }) {
@@ -118,6 +120,8 @@ function SidebarContent({
   onBatch,
   onConfig,
   onDelete,
+  onSignOut,
+  userEmail,
   onClose,
 }: ProspectSidebarProps & { onClose?: () => void }) {
   return (
@@ -185,23 +189,36 @@ function SidebarContent({
       </div>
 
       {/* Bottom actions */}
-      <div className="flex items-center gap-1 border-t border-slate-800 px-3 py-3">
-        <button
-          onClick={onBatch}
-          title="Importar lista de URLs para analizar en batch"
-          className="flex flex-1 items-center gap-1.5 rounded-md px-2 py-1.5 text-xs text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200"
-        >
-          <Layers size={13} />
-          Importar lista
-        </button>
-        <button
-          onClick={onConfig}
-          title="Configuración (API key, servicio, tono)"
-          className="flex items-center gap-1 rounded-md px-2 py-1.5 text-xs text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200"
-        >
-          <Settings2 size={13} />
-          Config
-        </button>
+      <div className="border-t border-slate-800 px-3 py-3 space-y-1">
+        <div className="flex items-center gap-1">
+          <button
+            onClick={onBatch}
+            title="Importar lista de URLs"
+            className="flex flex-1 items-center gap-1.5 rounded-md px-2 py-1.5 text-xs text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200"
+          >
+            <Layers size={13} />
+            Importar lista
+          </button>
+          <button
+            onClick={onConfig}
+            title="Configuración"
+            className="flex items-center gap-1 rounded-md px-2 py-1.5 text-xs text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200"
+          >
+            <Settings2 size={13} />
+            Config
+          </button>
+        </div>
+        {/* User info + logout */}
+        <div className="flex items-center gap-2 rounded-md px-2 py-1.5">
+          <p className="flex-1 truncate text-[10px] text-slate-600" title={userEmail}>{userEmail}</p>
+          <button
+            onClick={onSignOut}
+            title="Cerrar sesión"
+            className="flex-shrink-0 rounded p-1 text-slate-600 transition-colors hover:bg-slate-800 hover:text-red-400"
+          >
+            <LogOut size={12} />
+          </button>
+        </div>
       </div>
     </>
   );

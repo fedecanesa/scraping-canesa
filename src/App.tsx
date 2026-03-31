@@ -1,14 +1,17 @@
-import { useCallback, useEffect, useRef, useState } from "react";
 import { Menu } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { AnalyzePanel } from "@/components/AnalyzePanel";
+import { AuthScreen } from "@/components/AuthScreen";
 import { BatchImportDrawer } from "@/components/BatchImportDrawer";
 import { ConfigDrawer } from "@/components/ConfigDrawer";
 import { DiscoverPanel } from "@/components/DiscoverPanel";
 import { ProspectPanel } from "@/components/ProspectPanel";
 import { ProspectSidebar } from "@/components/ProspectSidebar";
 import { API_BASE, buildHeaders, parseApiError } from "@/lib/api";
-import { extractDomain, loadConfig, loadProspects, saveConfig, saveProspects } from "@/lib/storage";
+import { useAuth } from "@/lib/AuthProvider";
+import { deleteProspect, fetchProspects, upsertProspect } from "@/lib/db";
+import { extractDomain, loadConfig, saveConfig } from "@/lib/storage";
 import type {
   Objective,
   PipelineConfig,
@@ -19,54 +22,60 @@ import type {
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 
-function App() {
-  const [prospects, setProspects] = useState<Prospect[]>(loadProspects);
-  const [selectedId, setSelectedId] = useState<string | null>(
-    () => loadProspects()[0]?.id ?? null,
-  );
+function AppInner() {
+  const { user, signOut } = useAuth();
+
+  const [prospects, setProspects] = useState<Prospect[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [config, setConfig] = useState<PipelineConfig>(loadConfig);
   const [configOpen, setConfigOpen] = useState(false);
   const [batchOpen, setBatchOpen] = useState(false);
   const [discoverOpen, setDiscoverOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [dbLoading, setDbLoading] = useState(true);
 
-  // Keep a ref to config so SSE callbacks always have the current value
   const configRef = useRef(config);
-  useEffect(() => {
-    configRef.current = config;
-  }, [config]);
+  useEffect(() => { configRef.current = config; }, [config]);
 
-  // Active SSE connections keyed by prospect id
   const activeStreams = useRef<Map<string, EventSource>>(new Map());
 
-  // Cleanup on unmount
+  // ── Cargar prospects desde Supabase al login ─────────────────────────────
   useEffect(() => {
-    return () => {
-      activeStreams.current.forEach((es) => es.close());
-    };
+    if (!user) { setProspects([]); setDbLoading(false); return; }
+
+    setDbLoading(true);
+    fetchProspects().then((data) => {
+      setProspects(data);
+      if (data[0]) setSelectedId(data[0].id);
+      setDbLoading(false);
+    });
+  }, [user]);
+
+  // Cleanup streams on unmount
+  useEffect(() => {
+    return () => { activeStreams.current.forEach((es) => es.close()); };
   }, []);
 
   // ── Config persistence ───────────────────────────────────────────────────
-
   const handleConfigChange = useCallback((newConfig: PipelineConfig) => {
     setConfig(newConfig);
     saveConfig(newConfig);
   }, []);
 
   // ── Prospect mutations ───────────────────────────────────────────────────
-
   const updateProspect = useCallback((id: string, patch: Partial<Prospect>) => {
     setProspects((prev) => {
       const updated = prev.map((p) => (p.id === id ? { ...p, ...patch } : p));
-      if (patch.status === "completed" || patch.status === "failed") {
-        saveProspects(updated);
+      // Persistir en Supabase cuando llega a estado final
+      if (user && (patch.status === "completed" || patch.status === "failed")) {
+        const final = updated.find((p) => p.id === id);
+        if (final) upsertProspect(final, user.id);
       }
       return updated;
     });
-  }, []);
+  }, [user]);
 
-  // ── Core analysis logic (shared by single + batch) ──────────────────────
-
+  // ── Core analysis logic ──────────────────────────────────────────────────
   const analyzeProspect = useCallback(
     (id: string, url: string, cfg: PipelineConfig, objective: Objective = "sell"): Promise<void> =>
       new Promise((resolve) => {
@@ -152,7 +161,6 @@ function App() {
   );
 
   // ── Single analysis ──────────────────────────────────────────────────────
-
   const handleAnalyze = useCallback(
     (url: string, objective: Objective = "sell") => {
       const id = Date.now().toString();
@@ -183,23 +191,20 @@ function App() {
 
       setProspects((prev) => [newProspect, ...prev]);
       setSelectedId(id);
+      setDiscoverOpen(false);
 
       analyzeProspect(id, url, cfg, objective);
     },
     [analyzeProspect],
   );
 
-  // ── Re-analyze (from ProspectPanel) ─────────────────────────────────────
-
+  // ── Re-analyze ───────────────────────────────────────────────────────────
   const handleReanalyze = useCallback(
-    (url: string, objective: Objective) => {
-      handleAnalyze(url, objective);
-    },
+    (url: string, objective: Objective) => { handleAnalyze(url, objective); },
     [handleAnalyze],
   );
 
   // ── Batch import ─────────────────────────────────────────────────────────
-
   const handleBatchImport = useCallback(
     async (urls: string[], batchObjective?: Objective) => {
       const cfg = configRef.current;
@@ -239,34 +244,36 @@ function App() {
   );
 
   // ── Delete prospect ──────────────────────────────────────────────────────
-
   const handleDelete = useCallback((id: string) => {
-    // Close SSE stream if active
     const es = activeStreams.current.get(id);
     if (es) { es.close(); activeStreams.current.delete(id); }
 
-    setProspects((prev) => {
-      const updated = prev.filter((p) => p.id !== id);
-      saveProspects(updated);
-      return updated;
-    });
+    setProspects((prev) => prev.filter((p) => p.id !== id));
     setSelectedId((prev) => (prev === id ? null : prev));
+    deleteProspect(id);
   }, []);
 
   // ── Derived state ────────────────────────────────────────────────────────
-
   const selectedProspect = selectedId
     ? prospects.find((p) => p.id === selectedId) ?? null
     : null;
 
-  // ─────────────────────────────────────────────────────────────────────────
-
-  // ── Mobile page title ────────────────────────────────────────────────────
   const mobileTitle = discoverOpen
     ? "Descubrir"
     : selectedProspect
       ? selectedProspect.domain
       : "DeepReacher";
+
+  if (dbLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+          <p className="text-sm text-slate-400">Cargando tus prospectos...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen flex-col overflow-hidden md:flex-row">
@@ -306,6 +313,8 @@ function App() {
         onBatch={() => { setBatchOpen(true); setMobileSidebarOpen(false); }}
         onConfig={() => { setConfigOpen(true); setMobileSidebarOpen(false); }}
         onDelete={handleDelete}
+        onSignOut={signOut}
+        userEmail={user?.email ?? ""}
       />
 
       {discoverOpen ? (
@@ -345,4 +354,17 @@ function App() {
   );
 }
 
-export default App;
+export default function App() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-50">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (!user) return <AuthScreen />;
+  return <AppInner />;
+}
