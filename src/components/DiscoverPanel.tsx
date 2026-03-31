@@ -191,8 +191,8 @@ export function DiscoverPanel({ apiToken, onAnalyzeSelected }: DiscoverPanelProp
   return (
     <main className="flex flex-1 flex-col overflow-hidden bg-slate-50">
       {/* Header */}
-      <div className="border-b border-slate-200 bg-white px-8 py-5">
-        <div className="flex items-center justify-between">
+      <div className="border-b border-slate-200 bg-white px-4 py-4 md:px-8 md:py-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600">
               <Search size={17} className="text-white" />
@@ -228,12 +228,12 @@ export function DiscoverPanel({ apiToken, onAnalyzeSelected }: DiscoverPanelProp
         </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="flex-1 overflow-y-auto px-4 py-4 md:px-8 md:py-6">
         <div className="mx-auto max-w-2xl space-y-6">
 
           {/* Search form */}
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold text-slate-600">Categoría</label>
                 <Input
@@ -361,7 +361,7 @@ export function DiscoverPanel({ apiToken, onAnalyzeSelected }: DiscoverPanelProp
                     animate={{ opacity: 1, y: 0 }}
                     className="sticky bottom-0 rounded-2xl border border-indigo-200 bg-white p-4 shadow-lg"
                   >
-                    <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <p className="text-sm font-bold text-slate-900">
                           {selected.size} empresa{selected.size !== 1 ? "s" : ""} listas para analizar

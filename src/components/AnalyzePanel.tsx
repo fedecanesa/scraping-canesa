@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Bot, Globe, Lightbulb, Mail, Target } from "lucide-react";
+import { AlertTriangle, ArrowRight, Bot, Globe, Lightbulb, Mail, Settings2, Target } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import type { Objective } from "@/types";
 interface AnalyzePanelProps {
   onAnalyze: (url: string, objective: Objective) => void;
   onOpenConfig: () => void;
+  hasApiKey: boolean;
 }
 
 const OBJECTIVES: { id: Objective; label: string; desc: string; icon: React.ElementType }[] = [
@@ -37,7 +38,7 @@ const HOW_IT_WORKS = [
   },
 ];
 
-export function AnalyzePanel({ onAnalyze, onOpenConfig }: AnalyzePanelProps) {
+export function AnalyzePanel({ onAnalyze, onOpenConfig, hasApiKey }: AnalyzePanelProps) {
   const [url, setUrl] = useState("");
   const [objective, setObjective] = useState<Objective>("sell");
 
@@ -53,7 +54,7 @@ export function AnalyzePanel({ onAnalyze, onOpenConfig }: AnalyzePanelProps) {
   };
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center overflow-y-auto bg-slate-50 p-8">
+    <main className="flex flex-1 flex-col items-center justify-center overflow-y-auto bg-slate-50 p-4 md:p-8">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -78,7 +79,7 @@ export function AnalyzePanel({ onAnalyze, onOpenConfig }: AnalyzePanelProps) {
           <p className="mb-2.5 text-xs font-semibold uppercase tracking-widest text-slate-400">
             Objetivo del contacto
           </p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {OBJECTIVES.map((obj) => (
               <button
                 key={obj.id}
@@ -106,6 +107,23 @@ export function AnalyzePanel({ onAnalyze, onOpenConfig }: AnalyzePanelProps) {
           </div>
         </div>
 
+        {/* API key warning */}
+        {!hasApiKey && (
+          <motion.div
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-5 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3"
+          >
+            <AlertTriangle size={15} className="mt-0.5 flex-shrink-0 text-amber-500" />
+            <div className="flex-1 text-xs text-amber-700">
+              <span className="font-semibold">Falta configurar la API key</span> — sin ella el análisis va a fallar.{" "}
+              <button onClick={onOpenConfig} className="font-bold underline underline-offset-2 hover:text-amber-900">
+                Configurar ahora
+              </button>
+            </div>
+          </motion.div>
+        )}
+
         {/* URL input */}
         <div className="flex gap-2">
           <Input
@@ -129,17 +147,18 @@ export function AnalyzePanel({ onAnalyze, onOpenConfig }: AnalyzePanelProps) {
 
         <button
           onClick={onOpenConfig}
-          className="mt-3 text-xs text-slate-400 underline-offset-2 transition-colors hover:text-slate-600 hover:underline"
+          className="mt-3 flex items-center gap-1.5 text-xs text-slate-400 underline-offset-2 transition-colors hover:text-slate-600 hover:underline"
         >
-          Configuración avanzada (servicio, tono, páginas, API key)
+          <Settings2 size={12} />
+          Configurar servicio, tono y API key
         </button>
 
         {/* How it works */}
-        <div className="mt-12">
+        <div className="mt-10">
           <p className="mb-5 text-center text-xs font-semibold uppercase tracking-widest text-slate-400">
             Cómo funciona
           </p>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {HOW_IT_WORKS.map((step, i) => (
               <motion.div
                 key={i}

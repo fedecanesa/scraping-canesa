@@ -8,6 +8,8 @@ import {
   Edit3,
   ExternalLink,
   Handshake,
+  HelpCircle,
+  Info,
   Loader2,
   Mail,
   RefreshCw,
@@ -71,10 +73,31 @@ function buildMailtoUrl(client: EmailClient, to: string, subject: string, body: 
 }
 
 function scoreColor(score: number) {
-  if (score >= 80) return { ring: "ring-emerald-300", bg: "bg-emerald-50", text: "text-emerald-600", label: "Alto potencial", badge: "bg-emerald-100 text-emerald-700" };
-  if (score >= 60) return { ring: "ring-yellow-300", bg: "bg-yellow-50", text: "text-yellow-600", label: "Potencial medio", badge: "bg-yellow-100 text-yellow-700" };
-  if (score >= 40) return { ring: "ring-orange-300", bg: "bg-orange-50", text: "text-orange-600", label: "Bajo potencial", badge: "bg-orange-100 text-orange-700" };
-  return { ring: "ring-red-300", bg: "bg-red-50", text: "text-red-600", label: "Potencial mínimo", badge: "bg-red-100 text-red-700" };
+  if (score >= 80) return { ring: "ring-emerald-300", bg: "bg-emerald-50", text: "text-emerald-600", label: "Alto potencial", badge: "bg-emerald-100 text-emerald-700", action: "Contactar esta semana — señales claras de compra", actionColor: "text-emerald-700 bg-emerald-50 border-emerald-200" };
+  if (score >= 60) return { ring: "ring-yellow-300", bg: "bg-yellow-50", text: "text-yellow-600", label: "Potencial medio", badge: "bg-yellow-100 text-yellow-700", action: "Incluir en outreach activo — vale la pena el intento", actionColor: "text-yellow-700 bg-yellow-50 border-yellow-200" };
+  if (score >= 40) return { ring: "ring-orange-300", bg: "bg-orange-50", text: "text-orange-600", label: "Bajo potencial", badge: "bg-orange-100 text-orange-700", action: "Explorar más antes de contactar — dolor no evidente aún", actionColor: "text-orange-700 bg-orange-50 border-orange-200" };
+  return { ring: "ring-red-300", bg: "bg-red-50", text: "text-red-600", label: "Potencial mínimo", badge: "bg-red-100 text-red-700", action: "Baja prioridad — no invertir tiempo ahora", actionColor: "text-red-700 bg-red-50 border-red-200" };
+}
+
+function Tooltip({ text }: { text: string }) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <span className="relative inline-flex items-center">
+      <button
+        onMouseEnter={() => setVisible(true)}
+        onMouseLeave={() => setVisible(false)}
+        onClick={() => setVisible((v) => !v)}
+        className="text-slate-300 hover:text-slate-400"
+      >
+        <HelpCircle size={12} />
+      </button>
+      {visible && (
+        <span className="absolute left-5 top-0 z-50 w-56 rounded-lg border border-slate-200 bg-white p-2.5 text-[11px] leading-relaxed text-slate-600 shadow-lg">
+          {text}
+        </span>
+      )}
+    </span>
+  );
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -121,12 +144,17 @@ function BusinessCard({ profile, objective }: { profile: ProfileData; objective:
   const isSell = objective === "sell";
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-1 flex items-center gap-2">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100">
           <Bot size={15} className="text-indigo-600" />
         </div>
         <p className="text-sm font-bold text-slate-900">Inteligencia del negocio</p>
       </div>
+      <p className="mb-4 text-[11px] leading-relaxed text-slate-400">
+        {isSell
+          ? "Entendé a quién le estás hablando antes de contactarlos — más contexto = mejor mensaje."
+          : "Conocé en profundidad al potencial socio: qué hace, cómo genera dinero y qué los hace fuertes."}
+      </p>
       <div className="space-y-4 text-sm text-slate-700">
         {profile.business_summary && (
           <p className="leading-relaxed text-slate-600">{profile.business_summary}</p>
@@ -139,14 +167,20 @@ function BusinessCard({ profile, objective }: { profile: ProfileData; objective:
         )}
         {profile.business_model && (
           <div>
-            <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">Modelo de negocio</p>
+            <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">Cómo generan dinero</p>
             <p className="leading-relaxed">{profile.business_model}</p>
+          </div>
+        )}
+        {profile.ideal_customer && (
+          <div>
+            <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">A quién le venden</p>
+            <p className="leading-relaxed text-xs">{profile.ideal_customer}</p>
           </div>
         )}
         {profile.what_doing_well?.length > 0 && (
           <div>
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-              {isSell ? "Lo que hacen bien" : "Sus fortalezas (alianza)"}
+              {isSell ? "Lo que hacen bien" : "Sus fortalezas — base de la alianza"}
             </p>
             <ul className="space-y-1">
               {profile.what_doing_well.map((item, i) => (
@@ -160,7 +194,10 @@ function BusinessCard({ profile, objective }: { profile: ProfileData; objective:
         )}
         {isSell && profile.buying_signals?.length > 0 && (
           <div>
-            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-indigo-400">Señales de compra</p>
+            <div className="mb-2 flex items-center gap-1.5">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-indigo-400">Señales de compra</p>
+              <Tooltip text="Indicadores detectados en su web que sugieren que este negocio podría estar listo para comprar ahora. Úsalos para personalizar tu apertura." />
+            </div>
             <ul className="space-y-1">
               {profile.buying_signals.map((s, i) => (
                 <li key={i} className="flex gap-2">
@@ -176,26 +213,70 @@ function BusinessCard({ profile, objective }: { profile: ProfileData; objective:
   );
 }
 
+const SCORE_ZONES = [
+  { min: 0, max: 40, label: "Mín", color: "bg-red-300" },
+  { min: 40, max: 60, label: "Bajo", color: "bg-orange-300" },
+  { min: 60, max: 80, label: "Medio", color: "bg-yellow-300" },
+  { min: 80, max: 100, label: "Alto", color: "bg-emerald-400" },
+];
+
 function ScoreCard({ score, reason, objective }: { score: number; reason: string; objective: Objective }) {
   const c = scoreColor(score);
-  const label = objective === "sell" ? "Score de venta" : "Score de alianza";
+  const isSell = objective === "sell";
+  const label = isSell ? "Score de venta" : "Score de alianza";
+  const description = isSell
+    ? "Mide la probabilidad de que este prospecto esté listo para comprar tu servicio ahora."
+    : "Mide qué tan complementario es este negocio para una alianza estratégica contigo.";
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-1 flex items-center gap-2">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-100">
           <TrendingUp size={15} className="text-violet-600" />
         </div>
         <p className="text-sm font-bold text-slate-900">{label}</p>
       </div>
+      <p className="mb-4 text-[11px] leading-relaxed text-slate-400">{description}</p>
+
       <div className="flex flex-col items-center gap-3">
         <div className={`flex h-20 w-20 items-center justify-center rounded-full ring-4 ${c.ring} ${c.bg}`}>
           <span className={`text-3xl font-black ${c.text}`}>{score}</span>
         </div>
-        <div className="text-center">
-          <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${c.badge}`}>{c.label}</span>
-          {reason && <p className="mt-2 text-[11px] leading-relaxed text-slate-400">{reason}</p>}
+        <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${c.badge}`}>{c.label}</span>
+      </div>
+
+      {/* Scale bar */}
+      <div className="mt-4">
+        <div className="flex h-2 overflow-hidden rounded-full">
+          {SCORE_ZONES.map((z) => (
+            <div key={z.label} className={`flex-1 ${z.color} opacity-50`} />
+          ))}
+        </div>
+        <div className="mt-1 flex justify-between text-[9px] font-semibold text-slate-400">
+          {SCORE_ZONES.map((z) => <span key={z.label}>{z.label}</span>)}
+        </div>
+        {/* Indicator */}
+        <div className="relative mt-0.5 h-2">
+          <div
+            className={`absolute h-2 w-2 -translate-x-1/2 rounded-full ring-2 ring-white ${c.bg.replace("bg-", "bg-").replace("50", "500")}`}
+            style={{ left: `${Math.min(score, 99)}%` }}
+          />
         </div>
       </div>
+
+      {/* Action recommendation */}
+      {c.action && (
+        <div className={`mt-4 rounded-lg border px-3 py-2 text-[11px] font-medium leading-relaxed ${c.actionColor}`}>
+          <span className="font-bold">Recomendación: </span>{c.action}
+        </div>
+      )}
+
+      {/* Reason */}
+      {reason && (
+        <p className="mt-3 text-[11px] leading-relaxed text-slate-400">
+          <span className="font-semibold text-slate-500">Por qué este score: </span>{reason}
+        </p>
+      )}
     </div>
   );
 }
@@ -228,7 +309,7 @@ function IssuesCard({ profile, objective }: { profile: ProfileData; objective: O
 
   return (
     <div className="rounded-2xl border border-red-100 bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-1 flex items-center gap-2">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100">
           <AlertCircle size={15} className="text-red-500" />
         </div>
@@ -236,6 +317,11 @@ function IssuesCard({ profile, objective }: { profile: ProfileData; objective: O
           {isSell ? "Problemas detectados" : "Brechas del potencial socio"}
         </p>
       </div>
+      <p className="mb-4 text-[11px] leading-relaxed text-slate-400">
+        {isSell
+          ? "Puntos de dolor reales detectados en su web. Cada uno es una puerta de entrada para tu pitch."
+          : "Áreas donde este negocio tiene limitaciones que vos podrías complementar con tu servicio."}
+      </p>
       <div className="space-y-2.5">
         {issues.length > 0
           ? issues.map((issue, i) => (
@@ -311,7 +397,7 @@ function OpportunitiesCard({ profile, objective }: { profile: ProfileData; objec
   if (!opportunities.length) return null;
   return (
     <div className={`rounded-2xl border bg-white p-5 shadow-sm ${isPartnership ? "border-violet-100" : "border-indigo-100"}`}>
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-1 flex items-center gap-2">
         <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${isPartnership ? "bg-violet-100" : "bg-indigo-100"}`}>
           {isPartnership
             ? <Handshake size={15} className="text-violet-600" />
@@ -326,11 +412,77 @@ function OpportunitiesCard({ profile, objective }: { profile: ProfileData; objec
           </p>
         </div>
       </div>
+      <p className="mb-4 text-[11px] leading-relaxed text-slate-400">
+        {isPartnership
+          ? "Formatos de colaboración concretos detectados según sus fortalezas y las tuyas. Hacé click para ver el detalle."
+          : "Brechas concretas donde podés generar valor. Hacé click en cada una para ver el impacto y la solución sugerida."}
+      </p>
       <div className="space-y-2">
         {opportunities.map((opp, i) => (
           <OpportunityItem key={i} opp={opp} objective={objective} />
         ))}
       </div>
+    </div>
+  );
+}
+
+// ─── Analysis Guide ───────────────────────────────────────────────────────────
+
+const GUIDE_STEPS_SELL = [
+  { icon: Bot, title: "Entendé el negocio", desc: "Leé quiénes son, cómo ganan dinero y a quién le venden. Esto es lo que mencionarás en tu apertura." },
+  { icon: TrendingUp, title: "Revisá el score", desc: "Un score >70 significa que vale invertir tiempo ahora. <50 es baja prioridad." },
+  { icon: AlertCircle, title: "Usá los problemas como icebreaker", desc: "Cada problema detectado es una puerta de entrada. Mencioná uno específico en tu primer mensaje." },
+  { icon: Sparkles, title: "Profundizá las oportunidades", desc: "Expandí cada una para ver el impacto real y la solución concreta que podés ofrecer." },
+  { icon: Mail, title: "Enviá el mensaje ya personalizado", desc: "El mensaje ya incorpora todo el análisis. Editalo si querés ajustar algo y envialo directamente." },
+];
+
+const GUIDE_STEPS_PARTNERSHIP = [
+  { icon: Bot, title: "Entendé al potencial socio", desc: "Sus fortalezas son la base de la alianza. Su modelo de negocio define qué tipo de colaboración tiene sentido." },
+  { icon: TrendingUp, title: "Revisá el score de alianza", desc: "Mide complementariedad, no urgencia de compra. >70 significa que hay fit real para colaborar." },
+  { icon: AlertCircle, title: "Identificá las brechas", desc: "Son las áreas donde ellos tienen limitaciones que vos podés complementar — el argumento central de la alianza." },
+  { icon: Handshake, title: "Explorá los formatos de alianza", desc: "Referidos, white-label, co-ejecución — cada oportunidad ya viene con un formato concreto sugerido." },
+  { icon: Mail, title: "Proponé la alianza con el mensaje generado", desc: "El tono es de par a par, no de vendedor. Editalo para que suene a tu voz y envialo." },
+];
+
+function AnalysisGuide({ objective }: { objective: Objective }) {
+  const [open, setOpen] = useState(false);
+  const steps = objective === "sell" ? GUIDE_STEPS_SELL : GUIDE_STEPS_PARTNERSHIP;
+  return (
+    <div className="rounded-2xl border border-indigo-100 bg-indigo-50">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between px-5 py-3.5 text-left"
+      >
+        <div className="flex items-center gap-2">
+          <Info size={14} className="text-indigo-500" />
+          <span className="text-xs font-semibold text-indigo-700">¿Cómo leer este análisis?</span>
+        </div>
+        <ChevronDown size={14} className={`text-indigo-400 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="grid grid-cols-2 gap-3 border-t border-indigo-100 px-5 py-4 sm:grid-cols-3 lg:grid-cols-5">
+              {steps.map((step, i) => (
+                <div key={i} className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-200 text-[10px] font-bold text-indigo-700">{i + 1}</span>
+                    <step.icon size={12} className="text-indigo-500" />
+                  </div>
+                  <p className="text-[11px] font-semibold text-indigo-800">{step.title}</p>
+                  <p className="text-[10px] leading-relaxed text-indigo-500">{step.desc}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -403,7 +555,7 @@ function MessagesCard({
               {isPartnership ? "Mensajes de alianza" : "Mensajes de venta"}
             </p>
             <p className="text-[11px] text-slate-400">
-              {messages.length} variante{messages.length !== 1 ? "s" : ""} para {domain}
+              {messages.length} variante{messages.length !== 1 ? "s" : ""} generadas en base al análisis de {domain} — ya incluyen contexto específico del negocio
             </p>
           </div>
         </div>
@@ -477,7 +629,7 @@ function MessagesCard({
         <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-400">
           Enviar por email
         </p>
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <Input
             type="email"
             placeholder="destinatario@empresa.com"
@@ -486,27 +638,29 @@ function MessagesCard({
             onKeyDown={(e) => { if (e.key === "Enter") handleSend(); }}
             className="flex-1 border-slate-200 bg-white text-sm"
           />
-          {(["gmail", "outlook", "native"] as EmailClient[]).map((c) => (
-            <button
-              key={c}
-              onClick={() => setEmailClient(c)}
-              className={`rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
-                emailClient === c
-                  ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-                  : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
-              }`}
+          <div className="flex gap-2">
+            {(["gmail", "outlook", "native"] as EmailClient[]).map((c) => (
+              <button
+                key={c}
+                onClick={() => setEmailClient(c)}
+                className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors sm:flex-none ${
+                  emailClient === c
+                    ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                    : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
+                }`}
+              >
+                {CLIENT_LABELS[c]}
+              </button>
+            ))}
+            <Button
+              onClick={handleSend}
+              disabled={!recipient.trim()}
+              className="flex-1 gap-1.5 bg-indigo-600 text-sm hover:bg-indigo-500 disabled:opacity-50 sm:flex-none"
             >
-              {CLIENT_LABELS[c]}
-            </button>
-          ))}
-          <Button
-            onClick={handleSend}
-            disabled={!recipient.trim()}
-            className="gap-1.5 bg-indigo-600 text-sm hover:bg-indigo-500 disabled:opacity-50"
-          >
-            {sendClicked ? <Check size={15} /> : <ExternalLink size={15} />}
-            {sendClicked ? "Abierto" : "Enviar"}
-          </Button>
+              {sendClicked ? <Check size={15} /> : <ExternalLink size={15} />}
+              {sendClicked ? "Abierto" : "Enviar"}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -521,7 +675,8 @@ interface ProspectPanelProps {
 }
 
 export function ProspectPanel({ prospect, onReanalyze }: ProspectPanelProps) {
-  const isAnalyzing = prospect.status === "analyzing" || prospect.status === "queued";
+  const isQueued = prospect.status === "queued";
+  const isAnalyzing = prospect.status === "analyzing" || isQueued;
   const isFailed = prospect.status === "failed";
   const isCompleted = prospect.status === "completed";
 
@@ -533,7 +688,7 @@ export function ProspectPanel({ prospect, onReanalyze }: ProspectPanelProps) {
   return (
     <main className="flex flex-1 flex-col overflow-hidden bg-slate-50">
       {/* Sticky header */}
-      <div className="border-b border-slate-200 bg-white px-8 py-4">
+      <div className="border-b border-slate-200 bg-white px-4 py-4 md:px-8">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2.5">
@@ -570,18 +725,32 @@ export function ProspectPanel({ prospect, onReanalyze }: ProspectPanelProps) {
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="flex-1 overflow-y-auto px-4 py-4 md:px-8 md:py-6">
         <div className="mx-auto max-w-5xl">
 
           {isAnalyzing && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mx-auto max-w-xl space-y-3">
-              <p className="mb-4 text-sm font-semibold text-slate-500">Progreso del análisis</p>
-              {PIPELINE_STEPS.map((step) => (
-                <StepRow key={step} stepKey={step} status={prospect.steps[step] ?? "pending"} />
-              ))}
-              <p className="pt-2 text-center text-xs text-slate-400">
-                Esto puede demorar entre 1 y 3 minutos según el sitio.
-              </p>
+              {isQueued ? (
+                <div className="rounded-xl border border-slate-200 bg-white p-5 text-center">
+                  <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100">
+                    <Loader2 size={18} className="animate-spin text-slate-400" />
+                  </div>
+                  <p className="text-sm font-semibold text-slate-600">En cola de análisis</p>
+                  <p className="mt-1 text-xs text-slate-400">
+                    Esperando turno — los análisis anteriores se procesan primero.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <p className="mb-4 text-sm font-semibold text-slate-500">Progreso del análisis</p>
+                  {PIPELINE_STEPS.map((step) => (
+                    <StepRow key={step} stepKey={step} status={prospect.steps[step] ?? "pending"} />
+                  ))}
+                  <p className="pt-2 text-center text-xs text-slate-400">
+                    Esto puede demorar entre 1 y 3 minutos según el sitio.
+                  </p>
+                </>
+              )}
             </motion.div>
           )}
 
@@ -598,12 +767,15 @@ export function ProspectPanel({ prospect, onReanalyze }: ProspectPanelProps) {
 
           {isCompleted && profile && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
-              {/* Row 1: Business + Score + Tech */}
+              {/* Reading guide */}
+              <AnalysisGuide objective={prospect.objective} />
+
+              {/* Row 1: Score + Business info (mobile: score first for quick scan) */}
               <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-                <div className="lg:col-span-2">
+                <div className="order-2 lg:order-1 lg:col-span-2">
                   <BusinessCard profile={profile} objective={prospect.objective} />
                 </div>
-                <div className="flex flex-col gap-5">
+                <div className="order-1 flex flex-col gap-5 lg:order-2">
                   {score > 0 && <ScoreCard score={score} reason={profile.lead_score_reason} objective={prospect.objective} />}
                   <TechCard technology={profile.technology} />
                 </div>

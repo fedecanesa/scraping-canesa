@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Layers, Plus, Search, Settings2 } from "lucide-react";
+import { Layers, Plus, Search, Settings2, Trash2, X } from "lucide-react";
+import { useState } from "react";
 
 import { relativeTime } from "@/lib/storage";
 import type { Prospect, ProspectStatus } from "@/types";
@@ -8,11 +9,14 @@ interface ProspectSidebarProps {
   prospects: Prospect[];
   selectedId: string | null;
   discoverOpen: boolean;
+  mobileOpen: boolean;
+  onMobileClose: () => void;
   onSelect: (id: string) => void;
   onNew: () => void;
   onDiscover: () => void;
   onBatch: () => void;
   onConfig: () => void;
+  onDelete: (id: string) => void;
 }
 
 function StatusDot({ status }: { status: ProspectStatus }) {
@@ -51,43 +55,60 @@ function ProspectItem({
   prospect,
   isSelected,
   onClick,
+  onDelete,
 }: {
   prospect: Prospect;
   isSelected: boolean;
   onClick: () => void;
+  onDelete: (e: React.MouseEvent) => void;
 }) {
   const score = prospect.profileData?.lead_score;
+  const [hovered, setHovered] = useState(false);
 
   return (
-    <motion.button
+    <motion.div
       layout
-      onClick={onClick}
-      whileTap={{ scale: 0.98 }}
-      className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2.5 text-left transition-colors ${
-        isSelected
-          ? "bg-white/10 ring-1 ring-white/10"
-          : "hover:bg-white/5"
-      }`}
+      className="group relative"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      <StatusDot status={prospect.status} />
-      <div className="min-w-0 flex-1">
-        <p
-          className={`truncate text-sm ${
-            isSelected ? "font-semibold text-white" : "font-medium text-slate-300"
-          }`}
+      <button
+        onClick={onClick}
+        className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2.5 pr-8 text-left transition-colors active:scale-[0.98] ${
+          isSelected
+            ? "bg-white/10 ring-1 ring-white/10"
+            : "hover:bg-white/5"
+        }`}
+      >
+        <StatusDot status={prospect.status} />
+        <div className="min-w-0 flex-1">
+          <p
+            className={`truncate text-sm ${
+              isSelected ? "font-semibold text-white" : "font-medium text-slate-300"
+            }`}
+          >
+            {prospect.domain}
+          </p>
+          <p className="text-[11px] text-slate-500">{relativeTime(prospect.createdAt)}</p>
+        </div>
+        {score !== undefined && score > 0 && prospect.status === "completed" && (
+          <ScoreBadge score={score} />
+        )}
+      </button>
+      {hovered && (
+        <button
+          onClick={onDelete}
+          title="Eliminar"
+          className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded p-1 text-slate-600 transition-colors hover:bg-red-500/20 hover:text-red-400"
         >
-          {prospect.domain}
-        </p>
-        <p className="text-[11px] text-slate-500">{relativeTime(prospect.createdAt)}</p>
-      </div>
-      {score !== undefined && score > 0 && prospect.status === "completed" && (
-        <ScoreBadge score={score} />
+          <Trash2 size={12} />
+        </button>
       )}
-    </motion.button>
+    </motion.div>
   );
 }
 
-export function ProspectSidebar({
+function SidebarContent({
   prospects,
   selectedId,
   discoverOpen,
@@ -96,13 +117,22 @@ export function ProspectSidebar({
   onDiscover,
   onBatch,
   onConfig,
-}: ProspectSidebarProps) {
+  onDelete,
+  onClose,
+}: ProspectSidebarProps & { onClose?: () => void }) {
   return (
-    <aside className="flex w-[220px] flex-shrink-0 flex-col border-r border-slate-800 bg-sidebar">
+    <>
       {/* Logo */}
-      <div className="px-4 pb-3 pt-4">
-        <p className="text-sm font-bold text-white">DEEPREACHER</p>
-        <p className="text-[11px] text-slate-500">Inteligencia comercial con IA</p>
+      <div className="flex items-center justify-between px-4 pb-3 pt-4">
+        <div>
+          <p className="text-sm font-bold text-white">DEEPREACHER</p>
+          <p className="text-[11px] text-slate-500">Inteligencia comercial con IA</p>
+        </div>
+        {onClose && (
+          <button onClick={onClose} className="rounded-md p-1 text-slate-500 hover:bg-slate-800 hover:text-slate-200">
+            <X size={16} />
+          </button>
+        )}
       </div>
 
       {/* Action buttons */}
@@ -146,6 +176,7 @@ export function ProspectSidebar({
                   prospect={p}
                   isSelected={p.id === selectedId}
                   onClick={() => onSelect(p.id)}
+                  onDelete={(e) => { e.stopPropagation(); onDelete(p.id); }}
                 />
               ))}
             </AnimatePresence>
@@ -157,19 +188,63 @@ export function ProspectSidebar({
       <div className="flex items-center gap-1 border-t border-slate-800 px-3 py-3">
         <button
           onClick={onBatch}
+          title="Importar lista de URLs para analizar en batch"
           className="flex flex-1 items-center gap-1.5 rounded-md px-2 py-1.5 text-xs text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200"
         >
           <Layers size={13} />
-          Importar URLs
+          Importar lista
         </button>
         <button
           onClick={onConfig}
-          title="Configuración"
-          className="rounded-md p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200"
+          title="Configuración (API key, servicio, tono)"
+          className="flex items-center gap-1 rounded-md px-2 py-1.5 text-xs text-slate-400 transition-colors hover:bg-slate-800 hover:text-slate-200"
         >
-          <Settings2 size={15} />
+          <Settings2 size={13} />
+          Config
         </button>
       </div>
-    </aside>
+    </>
+  );
+}
+
+export function ProspectSidebar(props: ProspectSidebarProps) {
+  const { mobileOpen, onMobileClose } = props;
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden w-[220px] flex-shrink-0 flex-col border-r border-slate-800 bg-sidebar md:flex">
+        <SidebarContent {...props} />
+      </aside>
+
+      {/* Mobile drawer overlay */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              key="backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-40 bg-black/60 md:hidden"
+              onClick={onMobileClose}
+            />
+            {/* Drawer */}
+            <motion.aside
+              key="drawer"
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 28, stiffness: 280 }}
+              className="fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col border-r border-slate-800 bg-sidebar md:hidden"
+            >
+              <SidebarContent {...props} onClose={onMobileClose} />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

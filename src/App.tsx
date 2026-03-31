@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Menu } from "lucide-react";
 
 import { AnalyzePanel } from "@/components/AnalyzePanel";
 import { BatchImportDrawer } from "@/components/BatchImportDrawer";
@@ -27,6 +28,7 @@ function App() {
   const [configOpen, setConfigOpen] = useState(false);
   const [batchOpen, setBatchOpen] = useState(false);
   const [discoverOpen, setDiscoverOpen] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Keep a ref to config so SSE callbacks always have the current value
   const configRef = useRef(config);
@@ -236,6 +238,21 @@ function App() {
     [analyzeProspect],
   );
 
+  // ── Delete prospect ──────────────────────────────────────────────────────
+
+  const handleDelete = useCallback((id: string) => {
+    // Close SSE stream if active
+    const es = activeStreams.current.get(id);
+    if (es) { es.close(); activeStreams.current.delete(id); }
+
+    setProspects((prev) => {
+      const updated = prev.filter((p) => p.id !== id);
+      saveProspects(updated);
+      return updated;
+    });
+    setSelectedId((prev) => (prev === id ? null : prev));
+  }, []);
+
   // ── Derived state ────────────────────────────────────────────────────────
 
   const selectedProspect = selectedId
@@ -244,17 +261,51 @@ function App() {
 
   // ─────────────────────────────────────────────────────────────────────────
 
+  // ── Mobile page title ────────────────────────────────────────────────────
+  const mobileTitle = discoverOpen
+    ? "Descubrir"
+    : selectedProspect
+      ? selectedProspect.domain
+      : "DeepReacher";
+
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen flex-col overflow-hidden md:flex-row">
+      {/* Mobile top bar */}
+      <div className="flex flex-shrink-0 items-center gap-3 border-b border-slate-200 bg-white px-4 py-3 md:hidden">
+        <button
+          onClick={() => setMobileSidebarOpen(true)}
+          className="rounded-md p-1.5 text-slate-600 hover:bg-slate-100"
+        >
+          <Menu size={20} />
+        </button>
+        <div className="flex-1 truncate">
+          <p className="truncate text-sm font-bold text-slate-900">{mobileTitle}</p>
+          <p className="text-[10px] text-slate-400">Inteligencia comercial con IA</p>
+        </div>
+        {selectedProspect?.profileData?.lead_score ? (
+          <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+            selectedProspect.profileData.lead_score >= 80 ? "bg-emerald-100 text-emerald-700" :
+            selectedProspect.profileData.lead_score >= 60 ? "bg-yellow-100 text-yellow-700" :
+            selectedProspect.profileData.lead_score >= 40 ? "bg-orange-100 text-orange-700" :
+            "bg-red-100 text-red-700"
+          }`}>
+            {selectedProspect.profileData.lead_score}
+          </span>
+        ) : null}
+      </div>
+
       <ProspectSidebar
         prospects={prospects}
         selectedId={selectedId}
         discoverOpen={discoverOpen}
-        onSelect={(id) => { setSelectedId(id); setDiscoverOpen(false); }}
-        onNew={() => { setSelectedId(null); setDiscoverOpen(false); }}
-        onDiscover={() => { setDiscoverOpen(true); setSelectedId(null); }}
-        onBatch={() => setBatchOpen(true)}
-        onConfig={() => setConfigOpen(true)}
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
+        onSelect={(id) => { setSelectedId(id); setDiscoverOpen(false); setMobileSidebarOpen(false); }}
+        onNew={() => { setSelectedId(null); setDiscoverOpen(false); setMobileSidebarOpen(false); }}
+        onDiscover={() => { setDiscoverOpen(true); setSelectedId(null); setMobileSidebarOpen(false); }}
+        onBatch={() => { setBatchOpen(true); setMobileSidebarOpen(false); }}
+        onConfig={() => { setConfigOpen(true); setMobileSidebarOpen(false); }}
+        onDelete={handleDelete}
       />
 
       {discoverOpen ? (
@@ -274,6 +325,7 @@ function App() {
         <AnalyzePanel
           onAnalyze={handleAnalyze}
           onOpenConfig={() => setConfigOpen(true)}
+          hasApiKey={!!config.apiToken}
         />
       )}
 
