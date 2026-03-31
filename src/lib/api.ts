@@ -1,6 +1,7 @@
 // lib/api.ts — Shared API constants and helpers
 
 export const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ||
   import.meta.env.VITE_API_BASE ||
   "https://scraping-canesa-scraping-canesa.1jn0jx.easypanel.host";
 
