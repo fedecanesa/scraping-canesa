@@ -33,9 +33,17 @@ const STEP_CONFIG: Record<string, { label: string; desc: string }> = {
     label: "Visitando el sitio web",
     desc: "Extrayendo contenido, estructura y señales del negocio",
   },
+  ReviewsAgent: {
+    label: "Leyendo reseñas de Google",
+    desc: "Analizando qué dicen los clientes reales sobre este negocio",
+  },
+  JobsAgent: {
+    label: "Detectando señales de contratación",
+    desc: "Identificando qué roles buscan y qué revela eso sobre sus prioridades",
+  },
   Profiler: {
     label: "Analizando en profundidad",
-    desc: "Detectando problemas, oportunidades y calculando score",
+    desc: "Sintetizando web + reseñas + empleos para detectar oportunidades",
   },
   Copywriter: {
     label: "Generando mensajes",
@@ -43,7 +51,7 @@ const STEP_CONFIG: Record<string, { label: string; desc: string }> = {
   },
 };
 
-const PIPELINE_STEPS = ["DataEngineer", "Profiler", "Copywriter"];
+const PIPELINE_STEPS = ["DataEngineer", "ReviewsAgent", "JobsAgent", "Profiler", "Copywriter"];
 
 type EmailClient = "gmail" | "outlook" | "native";
 
@@ -196,7 +204,7 @@ function BusinessCard({ profile, objective }: { profile: ProfileData; objective:
           <div>
             <div className="mb-2 flex items-center gap-1.5">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-indigo-400">Señales de compra</p>
-              <Tooltip text="Indicadores detectados en su web que sugieren que este negocio podría estar listo para comprar ahora. Úsalos para personalizar tu apertura." />
+              <Tooltip text="Indicadores detectados en su web, reseñas y búsquedas de empleo que sugieren que este negocio podría estar listo para comprar ahora." />
             </div>
             <ul className="space-y-1">
               {profile.buying_signals.map((s, i) => (
@@ -206,6 +214,17 @@ function BusinessCard({ profile, objective }: { profile: ProfileData; objective:
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+        {profile.top_review_quote && (
+          <div>
+            <div className="mb-2 flex items-center gap-1.5">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-500">Reseña destacada</p>
+              <Tooltip text="La reseña más reveladora de sus clientes. Podés usarla como icebreaker o para referenciar un problema real en tu mensaje." />
+            </div>
+            <blockquote className="rounded-lg border border-amber-100 bg-amber-50 px-3 py-2 text-xs italic leading-relaxed text-amber-800">
+              "{profile.top_review_quote}"
+            </blockquote>
           </div>
         )}
       </div>
