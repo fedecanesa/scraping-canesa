@@ -13,5 +13,6 @@ export default defineConfig({
   base: '/app/',
   build: {
     outDir: 'dist/app',
+    emptyOutDir: true,
   },
 })
