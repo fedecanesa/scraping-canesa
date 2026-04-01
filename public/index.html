@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DeepReacher — Inteligencia comercial con IA</title>
-  <meta name="description" content="Analizá cualquier empresa en segundos. DeepReacher detecta problemas reales, calcula el potencial del lead y genera mensajes de contacto hiper personalizados que convierten." />
-  <meta property="og:title" content="DeepReacher — Inteligencia comercial con IA" />
-  <meta property="og:description" content="De URL a reunión agendada. Analizá empresas en profundidad y generá cold outreach que convierte." />
+  <title>DeepReacher — Inteligencia comercial B2B con IA</title>
+  <meta name="description" content="Analizá cualquier empresa en profundidad: sitio web, reseñas de clientes y señales de contratación. DeepReacher detecta el momento exacto para contactar y genera el mensaje perfecto." />
+  <meta property="og:title" content="DeepReacher — Inteligencia comercial B2B con IA" />
+  <meta property="og:description" content="Tres fuentes de datos, un análisis profundo, un mensaje que convierte. De URL a reunión agendada." />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -22,6 +22,7 @@
       --slate-900: #0f172a;
       --slate-800: #1e293b;
       --slate-700: #334155;
+      --slate-600: #475569;
       --slate-500: #64748b;
       --slate-400: #94a3b8;
       --slate-200: #e2e8f0;
@@ -44,8 +45,8 @@
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 24px; height: 60px;
-      background: rgba(255,255,255,0.9);
+      padding: 0 32px; height: 64px;
+      background: rgba(255,255,255,0.95);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--slate-200);
     }
@@ -63,10 +64,10 @@
       color: white; font-size: 16px;
     }
 
-    .nav-links { display: flex; align-items: center; gap: 8px; }
+    .nav-links { display: flex; align-items: center; gap: 6px; }
 
     .btn {
-      display: inline-flex; align-items: center; gap-8px;
+      display: inline-flex; align-items: center;
       padding: 10px 20px; border-radius: 10px;
       font-size: 14px; font-weight: 600;
       text-decoration: none; cursor: pointer; border: none;
@@ -77,7 +78,12 @@
       background: transparent; color: var(--slate-600);
       padding: 8px 14px;
     }
-    .btn-ghost:hover { background: var(--slate-100); }
+    .btn-ghost:hover { background: var(--slate-100); color: var(--slate-900); }
+
+    .btn-secondary {
+      background: var(--slate-100); color: var(--slate-800);
+    }
+    .btn-secondary:hover { background: var(--slate-200); }
 
     .btn-primary {
       background: var(--indigo); color: white;
@@ -90,22 +96,22 @@
     }
     .btn-outline:hover { background: var(--indigo-light); }
 
-    .btn-lg { padding: 14px 28px; font-size: 15px; border-radius: 12px; }
-    .btn-xl { padding: 16px 36px; font-size: 16px; border-radius: 14px; }
+    .btn-lg { padding: 13px 26px; font-size: 15px; border-radius: 12px; }
+    .btn-xl { padding: 16px 34px; font-size: 16px; border-radius: 12px; }
 
     /* ── HERO ── */
     .hero {
-      padding: 140px 24px 80px;
+      padding: 148px 24px 88px;
       text-align: center;
-      background: linear-gradient(180deg, #fafbff 0%, #fff 100%);
+      background: linear-gradient(180deg, #f8faff 0%, #fff 100%);
     }
 
     .hero-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 14px; border-radius: 100px;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: 100px;
       background: var(--indigo-light); color: var(--indigo);
       font-size: 13px; font-weight: 600;
-      margin-bottom: 24px;
+      margin-bottom: 28px;
     }
 
     .hero-badge-dot {
@@ -120,22 +126,23 @@
     }
 
     h1 {
-      font-size: clamp(36px, 6vw, 68px);
+      font-size: clamp(38px, 6vw, 72px);
       font-weight: 900;
-      line-height: 1.1;
+      line-height: 1.08;
       letter-spacing: -0.03em;
       color: var(--slate-900);
-      max-width: 800px;
-      margin: 0 auto 20px;
+      max-width: 820px;
+      margin: 0 auto 22px;
     }
 
     h1 span { color: var(--indigo); }
 
     .hero-sub {
-      font-size: clamp(16px, 2.5vw, 20px);
+      font-size: clamp(16px, 2.5vw, 19px);
       color: var(--slate-500);
-      max-width: 560px;
-      margin: 0 auto 40px;
+      max-width: 540px;
+      margin: 0 auto 44px;
+      line-height: 1.65;
     }
 
     .hero-ctas {
@@ -143,8 +150,8 @@
     }
 
     .hero-social-proof {
-      margin-top: 48px;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 52px;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
       font-size: 13px; color: var(--slate-400);
     }
 
@@ -159,17 +166,56 @@
     }
     .avatar:first-child { margin-left: 0; }
 
+    /* ── DIFERENCIADOR STRIP ── */
+    .diff-strip {
+      background: var(--slate-900);
+      padding: 20px 24px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 32px; flex-wrap: wrap;
+    }
+
+    .diff-item {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 14px; font-weight: 600; color: #cbd5e1;
+    }
+
+    .diff-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; flex-shrink: 0;
+    }
+
+    .diff-sep {
+      width: 1px; height: 24px; background: #334155;
+    }
+
+    @media (max-width: 600px) { .diff-sep { display: none; } }
+
     /* ── DEMO PREVIEW ── */
     .demo-section {
-      padding: 0 24px 80px;
-      max-width: 960px;
+      padding: 72px 24px;
+      max-width: 1000px;
       margin: 0 auto;
+    }
+
+    .demo-section-label {
+      text-align: center;
+      font-size: 12px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--indigo); margin-bottom: 12px;
+    }
+
+    .demo-section-title {
+      text-align: center;
+      font-size: clamp(22px, 3vw, 30px); font-weight: 800;
+      color: var(--slate-900); margin-bottom: 40px;
+      letter-spacing: -0.02em;
     }
 
     .demo-card {
       border-radius: 20px;
       border: 1px solid var(--slate-200);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.09);
       overflow: hidden;
     }
 
@@ -223,14 +269,6 @@
       color: var(--emerald);
     }
 
-    .tag {
-      display: inline-block;
-      padding: 3px 10px; border-radius: 100px;
-      font-size: 11px; font-weight: 600;
-      background: var(--slate-100); color: var(--slate-600);
-      margin: 2px;
-    }
-
     .issue-item {
       background: #fff5f5;
       border-radius: 8px;
@@ -239,6 +277,29 @@
       color: #dc2626;
       font-weight: 500;
       margin-bottom: 6px;
+    }
+
+    .review-quote {
+      background: #fffbeb;
+      border-left: 3px solid var(--amber);
+      border-radius: 0 8px 8px 0;
+      padding: 8px 12px;
+      font-size: 11px;
+      color: #92400e;
+      font-style: italic;
+      line-height: 1.5;
+      margin-top: 8px;
+    }
+
+    .job-signal {
+      background: #f0fdf4;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 11px;
+      color: #166534;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex; align-items: center; gap: 6px;
     }
 
     .message-preview {
@@ -251,13 +312,13 @@
 
     .message-text {
       font-size: 13px;
-      line-height: 1.7;
+      line-height: 1.75;
       color: var(--slate-700);
       font-style: italic;
     }
 
     /* ── SECCIONES ── */
-    section { padding: 80px 24px; }
+    section { padding: 88px 24px; }
 
     .section-inner { max-width: 1080px; margin: 0 auto; }
 
@@ -277,54 +338,70 @@
     .section-sub {
       font-size: 17px; color: var(--slate-500);
       max-width: 520px; margin-bottom: 56px;
+      line-height: 1.65;
     }
 
     /* ── HOW IT WORKS ── */
     .steps {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
+      gap: 40px;
     }
 
     @media (max-width: 768px) {
-      .steps { grid-template-columns: 1fr; }
-    }
-
-    .step {
-      position: relative;
+      .steps { grid-template-columns: 1fr; gap: 28px; }
     }
 
     .step-number {
-      width: 40px; height: 40px; border-radius: 12px;
+      width: 44px; height: 44px; border-radius: 12px;
       background: var(--indigo-light); color: var(--indigo);
-      font-size: 18px; font-weight: 800;
+      font-size: 20px; font-weight: 900;
       display: flex; align-items: center; justify-content: center;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .step h3 {
       font-size: 17px; font-weight: 700;
-      color: var(--slate-900); margin-bottom: 8px;
+      color: var(--slate-900); margin-bottom: 10px;
     }
 
-    .step p { font-size: 14px; color: var(--slate-500); line-height: 1.6; }
+    .step p { font-size: 14px; color: var(--slate-500); line-height: 1.65; }
+
+    .step-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+
+    .step-tag {
+      padding: 3px 10px; border-radius: 100px;
+      font-size: 11px; font-weight: 600;
+      background: var(--slate-100); color: var(--slate-600);
+    }
+
+    .step-tag.green { background: #dcfce7; color: #166534; }
+    .step-tag.amber { background: #fef9c3; color: #854d0e; }
+    .step-tag.indigo { background: var(--indigo-light); color: var(--indigo); }
 
     /* ── FEATURES ── */
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 24px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
     }
 
-    @media (max-width: 640px) {
-      .features-grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 900px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .features-grid { grid-template-columns: 1fr; } }
 
     .feature-card {
       background: var(--slate-50);
       border-radius: 16px;
       border: 1px solid var(--slate-200);
       padding: 24px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .feature-card:hover { border-color: #c7d2fe; box-shadow: 0 4px 16px rgba(79,70,229,0.07); }
+
+    .feature-card.highlight {
+      background: linear-gradient(135deg, #eef2ff, #faf5ff);
+      border-color: #c7d2fe;
     }
 
     .feature-icon {
@@ -334,11 +411,19 @@
     }
 
     .feature-card h3 {
-      font-size: 16px; font-weight: 700;
+      font-size: 15px; font-weight: 700;
       color: var(--slate-900); margin-bottom: 8px;
     }
 
-    .feature-card p { font-size: 14px; color: var(--slate-500); line-height: 1.6; }
+    .feature-card p { font-size: 13px; color: var(--slate-500); line-height: 1.65; }
+
+    .feature-new {
+      display: inline-block;
+      padding: 2px 8px; border-radius: 100px;
+      font-size: 10px; font-weight: 700;
+      background: var(--indigo); color: white;
+      margin-left: 6px; vertical-align: middle;
+    }
 
     /* ── OBJETIVO CARDS ── */
     .objective-grid {
@@ -370,10 +455,10 @@
 
     .objective-card h3 {
       font-size: 20px; font-weight: 800;
-      color: var(--slate-900); margin: 12px 0 8px;
+      color: var(--slate-900); margin: 14px 0 10px;
     }
 
-    .objective-card p { font-size: 14px; color: var(--slate-600); line-height: 1.6; }
+    .objective-card p { font-size: 14px; color: var(--slate-600); line-height: 1.65; }
 
     .objective-badge {
       display: inline-block;
@@ -384,17 +469,15 @@
     .badge-sell { background: var(--indigo); color: white; }
     .badge-partner { background: #7c3aed; color: white; }
 
-    .obj-list {
-      margin-top: 16px; list-style: none;
-    }
+    .obj-list { margin-top: 18px; list-style: none; }
 
     .obj-list li {
       font-size: 13px; color: var(--slate-600);
-      padding: 4px 0;
-      display: flex; align-items: center; gap: 8px;
+      padding: 5px 0;
+      display: flex; align-items: flex-start; gap: 8px;
     }
 
-    .obj-list li::before { content: "✓"; color: var(--indigo); font-weight: 700; }
+    .obj-list li::before { content: "✓"; color: var(--indigo); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
 
     /* ── PRICING ── */
     .pricing-grid {
@@ -405,7 +488,7 @@
     }
 
     @media (max-width: 768px) {
-      .pricing-grid { grid-template-columns: 1fr; max-width: 360px; margin: 0 auto; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 380px; margin: 0 auto; }
     }
 
     .plan {
@@ -413,7 +496,10 @@
       border: 2px solid var(--slate-200);
       padding: 32px;
       background: white;
+      transition: border-color 0.15s;
     }
+
+    .plan:hover { border-color: #c7d2fe; }
 
     .plan.featured {
       border-color: var(--indigo);
@@ -423,78 +509,86 @@
     }
 
     .plan-badge {
-      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
       background: var(--indigo); color: white;
       padding: 4px 16px; border-radius: 100px;
       font-size: 12px; font-weight: 700;
+      white-space: nowrap;
     }
 
     .plan-name {
-      font-size: 14px; font-weight: 700;
+      font-size: 13px; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.08em;
-      color: var(--slate-400); margin-bottom: 8px;
+      color: var(--slate-400); margin-bottom: 10px;
     }
 
     .plan.featured .plan-name { color: #818cf8; }
 
     .plan-price {
-      font-size: 48px; font-weight: 900;
+      font-size: 52px; font-weight: 900;
       color: var(--slate-900); line-height: 1;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
 
     .plan.featured .plan-price { color: white; }
 
-    .plan-period { font-size: 13px; color: var(--slate-400); margin-bottom: 24px; }
+    .plan-period { font-size: 13px; color: var(--slate-400); margin-bottom: 28px; }
 
     .plan-features { list-style: none; margin-bottom: 28px; }
 
     .plan-features li {
       font-size: 14px; color: var(--slate-600);
-      padding: 7px 0;
-      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0;
+      display: flex; align-items: flex-start; gap: 10px;
       border-bottom: 1px solid var(--slate-100);
     }
 
-    .plan.featured .plan-features li { color: #cbd5e1; border-color: #334155; }
+    .plan-features li:last-child { border-bottom: none; }
 
-    .plan-features li .check { color: var(--emerald); font-weight: 700; flex-shrink: 0; }
+    .plan.featured .plan-features li { color: #cbd5e1; border-color: #1e293b; }
+
+    .plan-features li .check { color: var(--emerald); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+    .plan-desc {
+      font-size: 13px; color: var(--slate-500); margin-bottom: 24px; line-height: 1.5;
+    }
+
+    .plan.featured .plan-desc { color: #64748b; }
 
     /* ── CTA FINAL ── */
     .cta-section {
       background: var(--slate-900);
       text-align: center;
-      padding: 100px 24px;
+      padding: 112px 24px;
     }
 
-    .cta-section h2 { color: white; margin-bottom: 16px; }
-    .cta-section p { color: var(--slate-400); font-size: 18px; margin-bottom: 40px; }
+    .cta-section h2 { color: white; margin-bottom: 18px; max-width: 560px; margin-left: auto; margin-right: auto; }
+    .cta-section p { color: var(--slate-400); font-size: 18px; margin-bottom: 44px; max-width: 480px; margin-left: auto; margin-right: auto; }
 
     /* ── FOOTER ── */
     footer {
       background: var(--slate-900);
       border-top: 1px solid var(--slate-800);
       padding: 32px 24px;
-      text-align: center;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
       font-size: 13px; color: var(--slate-600);
     }
 
-    footer a { color: var(--slate-400); text-decoration: none; }
+    footer a { color: var(--slate-500); text-decoration: none; }
     footer a:hover { color: white; }
+
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
 
     /* ── UTILS ── */
     .text-center { text-align: center; }
-    .mt-4 { margin-top: 16px; }
-    .mt-2 { margin-top: 8px; }
-
-    .bg-white-section { background: white; }
-
     .divider {
       width: 48px; height: 3px;
       background: var(--indigo);
       border-radius: 2px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
+    .bg-white-section { background: white; }
   </style>
 </head>
 <body>
@@ -506,9 +600,10 @@
     DeepReacher
   </a>
   <div class="nav-links">
-    <a href="#como-funciona" class="btn btn-ghost" style="text-decoration:none;color:#64748b">Cómo funciona</a>
-    <a href="#precios" class="btn btn-ghost" style="text-decoration:none;color:#64748b">Precios</a>
-    <a href="/app/" class="btn btn-primary">Empezar gratis →</a>
+    <a href="#como-funciona" class="btn btn-ghost" style="text-decoration:none">Cómo funciona</a>
+    <a href="#precios" class="btn btn-ghost" style="text-decoration:none">Precios</a>
+    <a href="/app/" class="btn btn-secondary" style="text-decoration:none">Iniciar sesión</a>
+    <a href="/app/" class="btn btn-primary" style="text-decoration:none">Crear cuenta</a>
   </div>
 </nav>
 
@@ -516,18 +611,18 @@
 <section class="hero">
   <div class="hero-badge">
     <div class="hero-badge-dot"></div>
-    IA comercial de próxima generación
+    Inteligencia comercial para equipos B2B
   </div>
 
-  <h1>De URL a reunión<br/><span>en minutos</span></h1>
+  <h1>Tres fuentes de datos.<br/><span>Un mensaje que convierte.</span></h1>
 
   <p class="hero-sub">
-    Pegá el sitio web de cualquier empresa. DeepReacher analiza el negocio en profundidad, detecta problemas reales y genera mensajes de contacto que suenan escritos a mano.
+    DeepReacher analiza el sitio web de tu prospecto, sus reseñas de Google y sus búsquedas de empleo activas. Detecta el momento exacto para contactar y genera el mensaje perfecto.
   </p>
 
   <div class="hero-ctas">
-    <a href="/app/" class="btn btn-primary btn-xl">Empezar gratis — sin tarjeta</a>
-    <a href="#como-funciona" class="btn btn-outline btn-xl">Ver cómo funciona</a>
+    <a href="/app/" class="btn btn-primary btn-xl" style="text-decoration:none">Crear cuenta →</a>
+    <a href="#como-funciona" class="btn btn-outline btn-xl" style="text-decoration:none">Ver cómo funciona</a>
   </div>
 
   <div class="hero-social-proof">
@@ -540,37 +635,69 @@
   </div>
 </section>
 
+<!-- STRIP DIFERENCIADOR -->
+<div class="diff-strip">
+  <div class="diff-item">
+    <div class="diff-icon" style="background:#1e3a5f">🌐</div>
+    Sitio web del prospecto
+  </div>
+  <div class="diff-sep"></div>
+  <div class="diff-item">
+    <div class="diff-icon" style="background:#3b2f00">⭐</div>
+    Reseñas de Google
+  </div>
+  <div class="diff-sep"></div>
+  <div class="diff-item">
+    <div class="diff-icon" style="background:#0f3324">💼</div>
+    Búsquedas de empleo activas
+  </div>
+  <div class="diff-sep"></div>
+  <div class="diff-item" style="color:#818cf8;font-weight:700">
+    → Análisis en profundidad + mensaje personalizado
+  </div>
+</div>
+
 <!-- DEMO PREVIEW -->
 <div class="demo-section">
+  <p class="demo-section-label">Vista previa del análisis</p>
+  <h2 class="demo-section-title" style="letter-spacing:-0.02em">Lo que ve tu equipo en cada prospecto</h2>
+
   <div class="demo-card">
     <div class="demo-topbar">
       <div class="demo-dot" style="background:#ef4444"></div>
       <div class="demo-dot" style="background:#f59e0b"></div>
       <div class="demo-dot" style="background:#10b981"></div>
-      <span style="margin-left:12px;font-size:12px;color:#64748b">DeepReacher — Análisis de empresa.com</span>
+      <span style="margin-left:12px;font-size:12px;color:#64748b">DeepReacher — empresa.com</span>
     </div>
     <div class="demo-body">
-      <!-- Score -->
+      <!-- Score + Review -->
       <div class="demo-widget">
         <div class="demo-widget-title">Score de venta</div>
         <div class="score-ring">84</div>
         <div class="score-label">Alto potencial</div>
-        <div style="margin-top:12px;font-size:11px;color:#94a3b8;text-align:center">Empresa en crecimiento activo con brecha digital clara</div>
+        <div style="margin-top:10px;font-size:11px;color:#94a3b8;text-align:center">Empresa en crecimiento con brecha digital clara</div>
+        <div class="review-quote">
+          ★★★☆☆ "El producto es bueno pero el soporte post-venta es muy lento. Tardaron 2 semanas en responderme."
+        </div>
       </div>
 
-      <!-- Tecnología -->
+      <!-- Señales -->
       <div class="demo-widget">
-        <div class="demo-widget-title">Problemas detectados</div>
+        <div class="demo-widget-title">Señales detectadas</div>
         <div class="issue-item">Sin automatización post-venta</div>
-        <div class="issue-item">Web desactualizada desde 2021</div>
-        <div class="issue-item">Sin pixel de seguimiento activo</div>
+        <div class="issue-item">Web desactualizada desde 2022</div>
+        <div style="margin-top:10px">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:6px">Están buscando contratar</div>
+          <div class="job-signal">💼 Head of Marketing → No tienen marketing in-house</div>
+          <div class="job-signal">📊 Data Analyst → Maduración del negocio en curso</div>
+        </div>
       </div>
 
       <!-- Mensaje generado -->
       <div class="message-preview">
-        <div class="demo-widget-title">✉ Mensaje generado — listo para enviar</div>
+        <div class="demo-widget-title">✉ Mensaje generado — listo para personalizar y enviar</div>
         <p class="message-text">
-          "Vi que están expandiendo su línea de servicios B2B — muy buen movimiento. Noté que el proceso de onboarding de clientes todavía es manual, lo que probablemente les está generando fricción en los primeros 30 días. Trabajé con 3 empresas similares en automatizar exactamente eso. ¿Tienen 15 minutos esta semana para mostrarte los resultados?"
+          "Vi que están buscando un Head of Marketing — lo que me dice que están armando esa capacidad desde cero. Nosotros trabajamos con empresas en exactamente esa transición: construir la función de marketing sin contratar un equipo completo. En 60 días tus primeros 3 canales funcionando. ¿Tenés 15 minutos esta semana?"
         </p>
       </div>
     </div>
@@ -582,24 +709,39 @@
   <div class="section-inner">
     <div class="divider"></div>
     <p class="section-label">El proceso</p>
-    <h2>3 pasos. Menos de 3 minutos.</h2>
-    <p class="section-sub">Sin formularios, sin configuración compleja. Solo pegás la URL y DeepReacher hace el trabajo.</p>
+    <h2>De URL a mensaje en minutos</h2>
+    <p class="section-sub">Tres fuentes de inteligencia que la competencia no tiene. Un análisis que le habla directo al prospecto.</p>
 
     <div class="steps">
       <div class="step">
         <div class="step-number">1</div>
-        <h3>Analizamos el sitio web</h3>
-        <p>Visitamos el sitio, extraemos contenido, estructura y señales comerciales. Entendemos el negocio como lo haría un analista senior.</p>
+        <h3>Recolectamos inteligencia</h3>
+        <p>Analizamos tres fuentes simultáneamente: el sitio web del prospecto, sus reseñas en Google y sus búsquedas de empleo activas. Cada una revela algo distinto.</p>
+        <div class="step-tags">
+          <span class="step-tag indigo">Sitio web</span>
+          <span class="step-tag amber">Reseñas Google</span>
+          <span class="step-tag green">Job postings</span>
+        </div>
       </div>
       <div class="step">
         <div class="step-number">2</div>
-        <h3>Inteligencia profunda</h3>
-        <p>Detectamos problemas reales, calculamos el score del lead (0-100) y mapeamos oportunidades concretas donde tu servicio genera valor.</p>
+        <h3>Identificamos la oportunidad</h3>
+        <p>Detectamos problemas reales, calculamos el score del lead (0-100) y encontramos el ángulo exacto para entrar. Si buscan "Head of Sales", eso es una señal de compra — no solo un dato.</p>
+        <div class="step-tags">
+          <span class="step-tag indigo">Score 0-100</span>
+          <span class="step-tag">Issues reales</span>
+          <span class="step-tag">Señales de compra</span>
+        </div>
       </div>
       <div class="step">
         <div class="step-number">3</div>
-        <h3>Mensajes que convierten</h3>
-        <p>Generamos 3 variantes de mensaje hiper personalizado — cada uno menciona algo específico de su negocio. Editá y enviá directo desde la app.</p>
+        <h3>Generamos el mensaje</h3>
+        <p>3 variantes de outreach hiper personalizado que mencionan algo específico de su negocio — algo que ellos no esperan que vos sepas. Editá y enviá directo desde la app.</p>
+        <div class="step-tags">
+          <span class="step-tag">3 variantes</span>
+          <span class="step-tag indigo">Modo venta</span>
+          <span class="step-tag">Modo alianza</span>
+        </div>
       </div>
     </div>
   </div>
@@ -611,29 +753,29 @@
     <div class="divider"></div>
     <p class="section-label">Dos modos de análisis</p>
     <h2>Adaptado a tu objetivo</h2>
-    <p class="section-sub">No es lo mismo querer vender que querer asociarse. DeepReacher diferencia los dos contextos con prompts y análisis completamente distintos.</p>
+    <p class="section-sub">No es lo mismo querer vender que querer asociarse. DeepReacher diferencia los dos contextos con análisis y mensajes completamente distintos.</p>
 
     <div class="objective-grid">
       <div class="objective-card sell">
         <span class="objective-badge badge-sell">🎯 Modo Venta</span>
         <h3>Vendé tu servicio</h3>
-        <p>Detectamos brechas urgentes, señales de compra y calculamos qué tan probable es que compren <em>ahora</em>. El mensaje apunta directo al dolor.</p>
+        <p>Detectamos brechas urgentes, señales de compra en reseñas y roles que están buscando contratar. El mensaje apunta al problema exacto — con contexto que ellos no saben que tenés.</p>
         <ul class="obj-list">
-          <li>Problemas detectados en su web</li>
-          <li>Señales de compra activas</li>
-          <li>Score de probabilidad de cierre</li>
-          <li>Mensaje con icebreaker personalizado</li>
+          <li>Problemas detectados en web, reseñas y empleos</li>
+          <li>Señales de compra con contexto real</li>
+          <li>Score de probabilidad de cierre (0-100)</li>
+          <li>Mensaje con icebreaker hiper personalizado</li>
         </ul>
       </div>
       <div class="objective-card partner">
         <span class="objective-badge badge-partner">🤝 Modo Partnership</span>
         <h3>Explorá una alianza</h3>
-        <p>Evaluamos complementariedad, identificamos formatos de colaboración (referidos, white-label, co-ejecución) y generamos un mensaje de par a par — sin tono de vendedor.</p>
+        <p>Evaluamos complementariedad real. Si buscan contratar algo que vos ya hacés, eso es una alianza natural — no una contratación. Generamos un mensaje de par a par, sin tono de vendedor.</p>
         <ul class="obj-list">
-          <li>Análisis de fortalezas del socio</li>
-          <li>Formato de alianza sugerido</li>
-          <li>Score de fit estratégico</li>
-          <li>Mensaje de alianza (tono colega)</li>
+          <li>Análisis de fortalezas y brechas del socio</li>
+          <li>Señales de apertura en reseñas y job postings</li>
+          <li>Formato de alianza sugerido (referidos, white-label...)</li>
+          <li>Mensaje de alianza — tono colega, no proveedor</li>
         </ul>
       </div>
     </div>
@@ -646,38 +788,38 @@
     <div class="divider"></div>
     <p class="section-label">Funcionalidades</p>
     <h2>Todo lo que necesitás para convertir</h2>
-    <p class="section-sub" style="margin-bottom:40px">Desde descubrir prospectos hasta enviar el mensaje — sin salir de la app.</p>
+    <p class="section-sub" style="margin-bottom:40px">Desde descubrir prospectos hasta enviar el mensaje — en un solo lugar.</p>
 
     <div class="features-grid">
+      <div class="feature-card highlight">
+        <div class="feature-icon" style="background:#fef9c3">⭐</div>
+        <h3>Análisis de reseñas Google <span class="feature-new">Nuevo</span></h3>
+        <p>Leemos lo que los clientes dicen sobre el prospecto. Una queja recurrente es tu mejor icebreaker — y revela un dolor que ellos no están resolviendo.</p>
+      </div>
+      <div class="feature-card highlight">
+        <div class="feature-icon" style="background:#dcfce7">💼</div>
+        <h3>Señales de contratación <span class="feature-new">Nuevo</span></h3>
+        <p>Si buscan "Head of Marketing", no tienen marketing in-house. Si buscan "CTO", están en transformación digital. Eso es una señal de compra — no solo un dato.</p>
+      </div>
       <div class="feature-card">
         <div class="feature-icon" style="background:#eef2ff">🔍</div>
         <h3>Descubrí prospectos</h3>
-        <p>Buscá empresas por categoría y ciudad usando Google Maps. Seleccioná las que te interesan y analizalas en un click — sin copy/paste de URLs.</p>
+        <p>Buscá empresas por categoría y ciudad con Google Maps integrado. Seleccioná las que te interesan y analizalas en un click.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon" style="background:#ecfdf5">📊</div>
         <h3>Score inteligente (0-100)</h3>
-        <p>Cada lead recibe un score con su justificación. Prioriza tu tiempo — 80+ significa contactar esta semana, menos de 50 es baja prioridad.</p>
+        <p>Cada lead recibe un score con su justificación basada en las tres fuentes. 80+ significa contactar esta semana — con argumentos concretos.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon" style="background:#fef3c7">✏️</div>
-        <h3>Edición inline de mensajes</h3>
-        <p>Los mensajes generados son un punto de partida. Editá directamente en la app antes de enviar — todo se guarda automáticamente.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon" style="background:#fdf4ff">📨</div>
-        <h3>Enviá desde la app</h3>
-        <p>Abrí Gmail, Outlook o tu cliente de email nativo con el mensaje pre-cargado. Sin copy/paste, sin perder el contexto.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon" style="background:#fff1f2">⚡</div>
-        <h3>Análisis en batch</h3>
-        <p>Importá una lista de URLs y DeepReacher las analiza todas en secuencia. Ideal para campañas de outreach masivo pero personalizado.</p>
+        <h3>Mensajes editables</h3>
+        <p>Los mensajes generados son un punto de partida, no el final. Editá inline antes de enviar — todo se guarda automáticamente.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon" style="background:#f0fdf4">☁️</div>
-        <h3>Todo en la nube</h3>
-        <p>Tu historial de prospectos se guarda por usuario. Accedé desde cualquier dispositivo — móvil incluido.</p>
+        <h3>Historial por usuario</h3>
+        <p>Todos tus prospectos guardados en la nube, asociados a tu cuenta. Accedé desde cualquier dispositivo, retomá el análisis donde lo dejaste.</p>
       </div>
     </div>
   </div>
@@ -686,58 +828,59 @@
 <!-- PRICING -->
 <section id="precios" style="background:var(--slate-50)">
   <div class="section-inner text-center">
-    <div class="divider" style="margin:0 auto 24px"></div>
-    <p class="section-label">Precios</p>
-    <h2>Simple y transparente</h2>
-    <p class="section-sub" style="margin:0 auto 56px">Sin sorpresas. Empezá gratis, escalá cuando necesites.</p>
+    <div class="divider" style="margin:0 auto 20px"></div>
+    <p class="section-label">Planes</p>
+    <h2>Precios claros, sin sorpresas</h2>
+    <p class="section-sub" style="margin:0 auto 56px">Elegí el plan según el volumen de prospectos de tu equipo.</p>
 
     <div class="pricing-grid">
       <!-- Free -->
       <div class="plan">
-        <div class="plan-name">Free</div>
+        <div class="plan-name">Starter</div>
         <div class="plan-price">$0</div>
         <div class="plan-period">para siempre</div>
+        <p class="plan-desc">Para explorar la herramienta y validar si encaja con tu proceso comercial.</p>
         <ul class="plan-features">
-          <li><span class="check">✓</span> 5 análisis por mes</li>
+          <li><span class="check">✓</span> 3 análisis por mes</li>
+          <li><span class="check">✓</span> Análisis web + reseñas + empleos</li>
           <li><span class="check">✓</span> Modos venta y partnership</li>
           <li><span class="check">✓</span> 3 variantes de mensaje</li>
-          <li><span class="check">✓</span> Score de lead</li>
-          <li><span class="check">✓</span> Historial en la nube</li>
+          <li><span class="check">✓</span> Score del lead</li>
         </ul>
-        <a href="/app/" class="btn btn-outline" style="width:100%;justify-content:center">Empezar gratis</a>
+        <a href="/app/" class="btn btn-outline" style="width:100%;justify-content:center;text-decoration:none">Crear cuenta</a>
       </div>
 
       <!-- Pro -->
       <div class="plan featured">
-        <div class="plan-badge">Más popular</div>
+        <div class="plan-badge">Más elegido</div>
         <div class="plan-name">Pro</div>
         <div class="plan-price">$29</div>
         <div class="plan-period">por mes · USD</div>
+        <p class="plan-desc" style="color:#64748b">Para profesionales y equipos con actividad comercial activa.</p>
         <ul class="plan-features">
-          <li><span class="check">✓</span> 100 análisis por mes</li>
-          <li><span class="check">✓</span> Todo lo del plan Free</li>
+          <li><span class="check">✓</span> 60 análisis por mes</li>
+          <li><span class="check">✓</span> Todo lo del plan Starter</li>
           <li><span class="check">✓</span> Descubrir prospectos</li>
-          <li><span class="check">✓</span> Análisis en batch</li>
-          <li><span class="check">✓</span> Exportar a CSV</li>
-          <li><span class="check">✓</span> Soporte prioritario</li>
+          <li><span class="check">✓</span> Exportar historial</li>
+          <li><span class="check">✓</span> Soporte por email</li>
         </ul>
-        <a href="/app/" class="btn btn-primary" style="width:100%;justify-content:center;background:#4f46e5">Empezar Pro →</a>
+        <a href="/app/" class="btn btn-primary" style="width:100%;justify-content:center;background:#4f46e5;text-decoration:none">Empezar con Pro →</a>
       </div>
 
       <!-- Agency -->
       <div class="plan">
         <div class="plan-name">Agency</div>
-        <div class="plan-price">$79</div>
+        <div class="plan-price">$99</div>
         <div class="plan-period">por mes · USD</div>
+        <p class="plan-desc">Para agencias con múltiples ejecutivos de cuenta y alto volumen mensual.</p>
         <ul class="plan-features">
-          <li><span class="check">✓</span> Análisis ilimitados</li>
+          <li><span class="check">✓</span> 300 análisis por mes</li>
           <li><span class="check">✓</span> Todo lo del plan Pro</li>
           <li><span class="check">✓</span> Múltiples usuarios</li>
-          <li><span class="check">✓</span> Análisis por user type</li>
-          <li><span class="check">✓</span> API access</li>
+          <li><span class="check">✓</span> Análisis por tipo de servicio</li>
           <li><span class="check">✓</span> Onboarding personalizado</li>
         </ul>
-        <a href="/app/" class="btn btn-outline" style="width:100%;justify-content:center">Contactar</a>
+        <a href="mailto:hola@deepreacher.com" class="btn btn-outline" style="width:100%;justify-content:center;text-decoration:none">Hablar con el equipo</a>
       </div>
     </div>
   </div>
@@ -745,19 +888,25 @@
 
 <!-- CTA FINAL -->
 <section class="cta-section">
-  <h2>¿Listo para tu primera reunión?</h2>
-  <p>Empezá gratis hoy. Sin tarjeta de crédito.</p>
-  <a href="/app/" class="btn btn-primary btn-xl" style="font-size:17px;padding:18px 40px">
-    Crear cuenta gratis →
+  <h2>El prospecto ya tiene el problema.<br/>Vos tenés la solución.</h2>
+  <p>Solo falta el mensaje correcto en el momento correcto. DeepReacher lo encuentra.</p>
+  <a href="/app/" class="btn btn-primary btn-xl" style="font-size:17px;padding:18px 40px;text-decoration:none">
+    Crear cuenta →
   </a>
-  <p style="margin-top:20px;font-size:13px;color:#475569">
-    Configuración en 2 minutos · Sin contrato · Cancelá cuando quieras
-  </p>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <p>© 2025 DeepReacher · <a href="mailto:hola@deepreacher.com">hola@deepreacher.com</a></p>
+  <a href="/" class="nav-logo" style="color:#cbd5e1">
+    <div class="nav-logo-icon" style="background:#1e293b">⚡</div>
+    DeepReacher
+  </a>
+  <div class="footer-links">
+    <a href="#como-funciona">Cómo funciona</a>
+    <a href="#precios">Precios</a>
+    <a href="mailto:hola@deepreacher.com">Contacto</a>
+  </div>
+  <span>© 2025 DeepReacher</span>
 </footer>
 
 </body>
